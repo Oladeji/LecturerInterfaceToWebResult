@@ -1,0 +1,49 @@
+
+                    <table class="table table-striped table-dark">
+    <thead>
+    <tr>
+      <th scope="col">#</th>
+      <th scope="col">Names</th>
+      <th scope="col">Code</th>
+      <th scope="col">Score</th>
+     </tr>
+      </thead>
+
+        <tbody>
+                </div>
+                <div class="card-body ">
+
+                     <h1>MY COURSE LIST</h1>
+                      {%for crs in courselist%}
+                    <tr>
+                    <th scope="row"> {{forloop.counter }}</th>
+                    <td>{{crs.MYSURNAME}} -{{crs.MYMIDDLENAME}} -{{crs.MYFIRSTNAME}} </td>
+                    <td>{{crs.MYCOURSEID}} </td>
+                    <td>
+                    
+                     <div class="form-group has-default">
+                    <input type="text" class="form-control " style = 'width:24px'  maxlength="2" value = {{crs.MYSCORE}}>
+                   </div>
+                    </td>
+                    </tr>
+                    
+                    
+                    
+                     {%endfor%}
+                       </tbody>
+                       </table>
+    
+                        <div>
+                        <a href="/download" class="btn btn-primary btn-round">Download Courses</a>
+                        </div>
+                         <div>
+                        <a href="/download" class="btn btn-primary btn-round">Save Entries</a>
+                        </div>
+                                                 <div>
+                        <a href="/download" class="btn btn-primary btn-round">Upload Scores Sheet</a>
+                        </div>
+                  </div>
+                </div>
+
+                
+              </div>

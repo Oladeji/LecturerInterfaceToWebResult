@@ -1,0 +1,110 @@
+
+{%extends 'base.html'%}
+{% load static%}
+{%block content%}
+        <div class="container">
+        <!--                nav tabs	             -->
+        <div id="nav-tabs">
+          
+          <div class="row">
+            <div class="col-md-4">
+                    <h3><small>Available Courses For {{request.user}}</small></h3>
+              {%for crs in courselist%}
+              <!-- Tabs with icons on Card -->
+              <div class="card card-nav-tabs">
+                <div class="card-header card-header-primary"> 
+                
+                <span class="badge badge-pill badge-primary">{{ forloop.counter }}. CODE :{{crs.MYCOURSEID}} , UNIT: {{crs.MYCOURSEUNIT}} </span>
+            
+                  <!-- colors: "header-primary", "header-info", "header-success", "header-warning", "header-danger" -->
+
+                </div>
+                <div class="card-body ">
+                  <div class="tab-content text-center">
+                    <div class="tab-pane active">
+                      <p class="card-text">  NAME : {{crs.MYCOURSENAME}} </p>
+                      <p class="card-text">  SESSION : {{crs.MYASESSIONID}} , SEMESTER : : {{crs.MYSEMESTERID}}</p>
+                      <a href=" {% url 'displayCourse_view' crs.MYCOURSEGUID%}" class="btn btn-primary btn-round">LOAD COURSE</a>
+
+                    </div>
+
+                                       </div>
+                </div>
+              </div>              <!-- End Tabs with icons on Card -->
+          <hr>
+        {% endfor %}
+              
+        </div>
+            <div class="col-md-4">
+</div>
+            <div class="col-md-4">
+              <h3><small>Report Constraints</small></h3>
+              <!-- Tabs on Plain Card -->
+              <div class="card card-nav-tabs">
+                <div class="card-header card-header-danger">
+                  <!-- colors: "header-primary", "header-info", "header-success", "header-warning", "header-danger" -->
+                     
+                         Settings
+                    
+                </div>
+                <div class="card-body ">
+                  <div class="tab-content text-center">
+                    <div class="tab-pane active" 
+                      <p>I think that&#x2019;s a stand culture. I am the nucleus.</p>
+
+              <div class="form-check">
+                <label class="form-check-label">
+                  <input class="form-check-input" type="checkbox" value="">
+                  Include those with Scores
+                  <span class="form-check-sign">
+                    <span class="check"></span>
+                  </span>
+                </label>
+              </div>
+
+
+              <form>
+        <div>      
+  <div class="form-group">
+    <label for="exampleFormControlSelect1">Year</label>
+    <select class="form-control" id="exampleFormControlSelect1">
+      <option>1</option>
+      <option>2</option>
+      <option>3</option>
+      <option>4</option>
+      <option>5</option>
+    </select>
+  </div>
+      <label for="exampleFormControlSelect1">Month</label>
+    <select class="form-control" id="exampleFormControlSelect1">
+      <option>1</option>
+      <option>2</option>
+      <option>3</option>
+      <option>4</option>
+      <option>5</option>
+    </select>
+  </div>
+        <label for="exampleFormControlSelect1">Day</label>
+    <select class="form-control" id="exampleFormControlSelect1">
+      <option>1</option>
+      <option>2</option>
+      <option>3</option>
+      <option>4</option>
+      <option>5</option>
+    </select>
+  </div>
+  </div>
+</form>
+
+                    </div>
+
+                  </div>
+                </div>
+              </div>
+              <!-- End Tabs on plain Card -->
+            </div>
+          </div>
+        </div>
+      </div>
+
+{% endblock%}

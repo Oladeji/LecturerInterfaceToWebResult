@@ -1,0 +1,73 @@
+{%extends 'base.html'%}
+{%block content%}
+         <div class="container">
+        <!--                nav tabs	             -->
+        <div id="nav-tabs">
+          <h3>Available Courses For Mr Lecturer</h3>
+          <div class="row">
+            <div class="col-md-10">
+                 <h3><small>Tabs with Icons on Card</small></h3>
+              <!-- Tabs with icons on Card -->
+              <div class="card card-nav-tabs">
+                <div class="card-header card-header-primary"> 
+                <h4> CODE </h4>
+                  <!-- colors: "header-primary", "header-info", "header-success", "header-warning", "header-danger" -->
+       
+                </div>
+                <div class="card-body ">
+                    <table class="table table-striped table-dark">
+                    <thead>
+                        <tr>
+                      <th scope="col">#</th>
+                      <th scope="col">Names</th>
+                        <th scope="col">MatricNo</th>
+
+                      <th scope="col">Code</th>
+                      <th scope="col">Score</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                             {%for crs in courselist%}
+     
+                    
+                     <tr>
+                    <th scope="row"> {{forloop.counter }}</th>
+                    <td>{{crs.MYSURNAME}} -{{crs.MYMIDDLENAME}} -{{crs.MYFIRSTNAME}} </td>
+                     <td>{{crs.MYSTUDENTID}} </td>
+                    <td>{{crs.MYCOURSEID}} </td>
+                    <td>
+                    
+                     <div class="form-group has-default">
+                    <input type="text" class="form-control " style = 'width:24px'  maxlength="2" value = {{crs.MYSCORE}}>
+                   </div>
+                    </td>
+                    </tr>
+                    {%endfor%}
+                       </tbody>
+                      </table>
+
+                        <div>
+                        <a href="/download" class="btn btn-primary btn-round">Download Courses</a>
+                              <a href="/download" class="btn btn-primary btn-round">Save Entries</a>
+            
+                        </div>
+                         <div>
+                            </div>
+                                                 <div>
+                        <a href="/download" class="btn btn-primary btn-round">Upload Scores Sheet</a>
+                        </div>
+                  </div>
+                </div>
+
+                
+              </div>
+              <!-- End Tabs with icons on Card -->
+              
+            </div>
+
+            </div>
+          </div>
+        </div>
+      </div>
+
+{% endblock%}
