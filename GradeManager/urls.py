@@ -12,8 +12,9 @@ urlpatterns = [
     path('register_view', views.register_view, name='register_view'),
     path('availableCourses_view', views.availableCourses_view, name='availableCourses_view'), 
     path('displayCourseview/<str:csrid>', views.displayCourse_view, name='displayCourse_view'), 
-    # path('download', views.export_users_xls, name='export_users_xls'),
-    # path('uploadscore', views.uploadscore, name='uploadscore'),
-    # path('uploadscores', views.uploadexcelscores, name='uploadscores'),
+    path('processdata', views.processdata, name='processdata'), 
+    path('downloadScoresheet_xls/<str:ccode>', views.downloadScoresheet_xls, name='downloadScoresheet_xls'),
+    path('downloadScoreSheetPdf', views.downloadScoreSheetPdf, name='downloadScoreSheetPdf'),
+    path('uploadScoresheet_xls', views.uploadScoresheet_xls, name='uploadScoresheet_xls'),
 
 ]

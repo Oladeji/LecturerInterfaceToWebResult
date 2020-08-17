@@ -1,10 +1,18 @@
 from django.shortcuts import render ,redirect
-from .forms import UserLoginForm ,UserRegisterForm
+from .forms import UserLoginForm ,UserRegisterForm ,UploadedScoreForm
 from django.contrib.auth import  login, authenticate,logout
 from django.contrib.auth.decorators import login_required
 import requests
 import json
-
+from django.http import HttpResponse ,HttpResponseNotFound 
+#from openpyxl import Workbook
+from django.conf  import settings
+import openpyxl
+from . DetailResult import DetailResult
+from . generatescorelist import generatescorelist
+from openpyxl.styles import Protection 
+from . basicunit import basicunit ,MergebasicScorelist
+from django.contrib import messages
 
 def landing(request):
     return render(request,'GradeManager/landing.html')
@@ -63,48 +71,203 @@ def register_view(request):
         return render(request,'GradeManager/register_view.html',context)
 
 
-
-
-baseurl = 'http://192.168.0.111/'
-
 @login_required
 def availableCourses_view(request):
     courselist=""
-    api=baseurl+'onlinecoursereg/api/Camp/getCourses'
+    api=settings.BASE_URL+'/api/Camp/getCourses'
     try:
           r = requests.get(api)
           courselist = json.loads(r.text)
-          print('loaded')
-          for i in  courselist: 
-            print(i['MYCOURSEID'] ,' ==> ',i['MYCOURSENAME']) 
-            print('_____________________________\n') 
+          messages.success(request, str (len(courselist))+ " Courses Successfully Loaded")
+               
     except  Exception as inst:
           print(inst)
+          messages.error(request,"Problem Loading Courses , Check Connection")
+               
     return render(request,'GradeManager/availableCourses_view.html',{'courselist':courselist})
 
+def processdata(request):  
+  
+    if request.method=='POST or None':
+        print("A Post Message , Details Below")
+        print(request.POST)
+   
+    return render(request,'GradeManager/landing.html')
 
 
 @login_required
 def displayCourse_view(request, csrid):  
     courselist={}
-  #if request.method=='POST or None':
-    ploads = {'csrid':csrid,'year':'1920'}
-    #api='http://192.168.8.103/onlinecoursereg/api/Student/PythonPullForscoreEntry?data='+csrid
-    api=baseurl+'onlinecoursereg/api/Student/Python'
+    if request.method=='POST or None':
+        print("A Post Message , Details Below")
+        url = request.POST.get("courselist")
+        
+        print(url)
+    else: 
+        ploads = {'csrid':csrid,'year':'1920'}
+        #api='http://192.168.8.103/onlinecoursereg/api/Student/PythonPullForscoreEntry?data='+csrid
+        api=settings.BASE_URL+'/api/Student/Python'
 
-    try:
+        try:
+            headers = {'content-type': 'application/json'}
+            r = requests.post(api,json=ploads,headers=headers)
+            courselist = json.loads(r.text)
 
-          headers = {'content-type': 'application/json'}
-          r = requests.post(api,json=ploads,headers=headers)
-          courselist = json.loads(r.text)
-          try:
-             del request.session['courselist']
-          except KeyError:
-            pass
-          request.session['courselist'] = courselist
-          for i in  courselist: 
-            print(i['MYSURNAME'] ,' ==> ',i['MYSTUDENTID']) 
-            print('_____________________________\n') 
-    except  Exception as inst:
-          print(inst)
+            request.session['courselist'] = courselist
+            
+        except  Exception as inst:
+            print("See Error Details Below /n")
+            print(inst)
     return render (request,'GradeManager/displayCourse_view.html',{'courselist':courselist})
+
+
+
+@login_required
+def downloadScoresheet_xls(request,ccode):
+  #if request.method=='POST or None':
+    response = HttpResponse(content_type='application/ms-excel')
+    response['Content-Disposition'] = 'attachment; filename="Newusers.xls"'
+    if request.session.has_key('courselist'):
+         courselist = request.session['courselist']
+         workbook = openpyxl.Workbook()
+         #worksheet = workbook.create_sheet('Sheet1')
+         worksheet=workbook.active
+
+         worksheet.protection.sheet = True
+         worksheet.protection.enable()
+         hashed_password="Akoms"
+         workbook.security.set_workbook_password(hashed_password, already_hashed=False)
+         worksheet.protection.password = 'Deji'
+         
+         cell1 = worksheet['G7']
+
+         cell1.value = "Can you change me?"
+
+ 
+         worksheet.title='SCORESSHEET'
+         col_start=0
+         row_start=7
+         worksheet.cell(row=2, column=2).value = 2
+         SECRETKEY={
+             "CCODE":"CCS111",
+             "TOTAL":"7",
+             "EMAIL":"AKOS",
+             "CID":"123"
+         }
+         worksheet.cell(1 ,1).value=json.dumps(SECRETKEY)
+         worksheet.cell(1 ,3).value=7
+         worksheet.cell(3 ,2).value='THE POLYTECHNIC IBADAN'
+         worksheet.cell(4 ,2).value='DEAPRTMENT'
+         worksheet.cell(4 ,2).value='COURSE CODE SESSION SEMESTER '
+         worksheet.cell(5 ,2).value='COURSE CODE : '+courselist[0]['MYCOURSEID']
+        #  worksheet.range("B3", "E3").merge()
+        #  worksheet.range("B4", "E4").merge()
+        #  worksheet.range("B5", "E5").merge()
+        #  worksheet.set_col_style(7, Style(fill=Fill(background=Color(255,0,0,0))))
+        #  worksheet.set_cell_style(1, 1, Style(font=Font(bold=True)))
+        #  worksheet.set_cell_style(1, 1, Style(font=Font(italic=True)))
+        #  worksheet.set_cell_style(1, 1, Style(font=Font(underline=True)))
+        #  worksheet.set_cell_style(1, 1, Style(font=Font(strikethrough=True)))
+        #  worksheet.set_cell_style(1, 1, Style(fill=Fill(background=Color(255,0,0,0))))
+        #  worksheet.set_cell_value(1, 2, datetime.now())
+        #  worksheet.set_cell_style(1, 1, Style(format=Format('mm/dd/yy')))
+         for index,row in  enumerate(courselist): 
+           
+
+             worksheet.cell(index+row_start ,col_start+1).value= index+1
+             worksheet.cell(index+row_start ,col_start+2).value= row['MYSTUDENTID']
+             worksheet.cell(index+row_start ,col_start+3).value= row['MYSURNAME']
+             worksheet.cell(index+row_start ,col_start+4).value= row['MYMIDDLENAME']
+             worksheet.cell(index+row_start ,col_start+5 ).value = row['MYFIRSTNAME']
+            
+             worksheet.cell(index+row_start ,col_start+6).value= row['MYSCORE']
+             worksheet.cell(index+row_start ,col_start+6).protection = Protection(locked=False)  
+             #Scorecell = worksheet['G8']
+
+             #Scorecell.value = "what about me?"
+ 
+         #cell2.style = Style(protection = Protection(locked=False))
+             #cell2.protection = Protection(locked=False)  
+
+
+         workbook.save(response)
+    else:
+        print('Nothing was passed in session')
+
+    #wb.save("output.xlsx")
+    #wb.save(response)
+    return response
+
+
+@login_required
+def  uploadScoresheet_xls(request):
+    context={}
+    if request.method == 'POST' :
+        
+        form = UploadedScoreForm(request.POST,request.FILES)
+        if form.is_valid():
+            
+            excel_file = request.FILES['scoresheetfile']
+            lists = generatescorelist(excel_file)
+            #json_string = json.dumps([ob.__dict__ for ob in lists])
+            json_string = [ob.__dict__ for ob in lists]
+            
+            print(json_string)
+  
+            myCampId="myCampId"
+            myFacId="myCampId"
+            myDeptId="myCampId"
+            myProgId="myCampId"
+            myProgOptionId="myCampId"
+            myAsetId="myCampId"
+            myAsessionId="myCampId"
+            mySemesterId="myCampId"
+            myLevelTodo="myCampId"
+            myCourseId="myCourseId"
+          
+            basicunits = basicunit( myCampId,myFacId,myDeptId,myProgId,myProgOptionId,myAsetId,myAsessionId,mySemesterId,myLevelTodo,myCourseId)
+            api=settings.BASE_URL+'/api/Student/PythonScore'
+            data = MergebasicScorelist(basicunits.__dict__,json_string)
+            mydata = json.dumps(data.__dict__)
+
+        try:
+            headers = {'content-type': 'application/json'}
+            r = requests.post(api,data=mydata,headers=headers)
+            print(r)
+            if r.status_code==200:
+                messages.success(request, str(r.status_code) +"  Successfully Uploaded")
+            else:
+                messages.error(request,str(r.status_code) +" Problem loading data")
+        except  Exception as inst:
+            print("See Error Details Below /n")
+
+            messages.error(request,inst)
+
+
+    else :
+        form = UploadedScoreForm()
+    context={'form':form}
+    return render(request,'GradeManager/uploadScoresheet_xls.html',context)
+
+
+def downloadScoreSheetPdf(request):
+
+    print('Beginning file download with requests')
+
+    #url = 'http://i3.ytimg.com/vi/J---aiyznGQ/mqdefault.jpg'
+    url='http://192.168.0.111/WebResult.WebApi/api/Student/PythonPullForScoreSheetPdf'
+    r = requests.get(url)
+
+    #with open('cat3.jpg', 'wb') as f:
+        #f.write(r.content)
+
+        # Retrieve HTTP meta-data
+    print(r.status_code)
+    print(r.headers['content-type'])
+    print(r.encoding)
+    
+    
+    response = HttpResponse(r.content,content_type='application/pdf')
+    response['Content-Disposition'] = 'attachment; filename="Newusers.pdf"'
+    return response
+    #return HttpResponseNotFound('Nothing Found')

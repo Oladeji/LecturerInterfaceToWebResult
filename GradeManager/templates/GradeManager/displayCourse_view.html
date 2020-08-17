@@ -1,6 +1,8 @@
 {%extends 'base.html'%}
 {%block content%}
          <div class="container">
+          <form class="form" method="POST" action="">
+          {%csrf_token%}
         <!--                nav tabs	             -->
         <div id="nav-tabs">
           <h3>Available Courses For Mr Lecturer</h3>
@@ -8,14 +10,15 @@
             <div class="col-md-10">
                  <h3><small>Tabs with Icons on Card</small></h3>
               <!-- Tabs with icons on Card -->
-              <div class="card card-nav-tabs">
+              
+               <div class="card card-nav-tabs">
                 <div class="card-header card-header-primary"> 
                 <h4> CODE </h4>
                   <!-- colors: "header-primary", "header-info", "header-success", "header-warning", "header-danger" -->
        
                 </div>
                 <div class="card-body ">
-                    <table class="table table-striped table-dark">
+                                     <table class="table table-striped table-dark">
                     <thead>
                         <tr>
                       <th scope="col">#</th>
@@ -45,29 +48,29 @@
                     {%endfor%}
                        </tbody>
                       </table>
-
+                      
                         <div>
-                        <a href="/download" class="btn btn-primary btn-round">Download Courses</a>
-                              <a href="/download" class="btn btn-primary btn-round">Save Entries</a>
-            
-                        </div>
-                         <div>
-                            </div>
-                                                 <div>
-                        <a href="/download" class="btn btn-primary btn-round">Upload Scores Sheet</a>
-                        </div>
+                        <a href="{% url 'downloadScoresheet_xls' 'xxx'%}" class="btn btn-primary btn-round">Download Excel WorkSheet</a>
+                        <a href="{% url 'downloadScoreSheetPdf'%}" class="btn btn-primary btn-round">Download ScoreSheet Pdf Format</a>
+                        <a href="  {% url 'uploadScoresheet_xls' %}" class="btn btn-primary btn-round">Upload Students Scores Sheet</a>
+                         </div>
+                        
                   </div>
                 </div>
 
                 
               </div>
+
               <!-- End Tabs with icons on Card -->
               
             </div>
 
-            </div>
-          </div>
-        </div>
+            </div><!-- col-md-10">-->
+          </div> <!-- closing row-->
+       
+
+        </div>  <!-- closing nav tabs-->
+       </form>
       </div>
 
 {% endblock%}

@@ -14,6 +14,7 @@ from pathlib import Path
 import urllib.parse as up
 import psycopg2
 import os
+from django.contrib.messages import constants as messages
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve(strict=True).parent.parent
@@ -31,7 +32,19 @@ DEBUG = True
 ALLOWED_HOSTS = []
 
 
+MESSAGE_TAGS = {
+    messages.DEBUG:'alert-info',
+    messages.INFO:'alert-info',
+    messages.SUCCESS:'alert-success',
+    messages.WARNING:'alert-warning',
+    messages.ERROR:'alert-danger',
+    
+}
+
+
+
 # Application definition
+
 
 INSTALLED_APPS = [
     'GradeManager.apps.GrademanagerConfig',
@@ -143,3 +156,5 @@ STATICFILES_DIRS = (
 
 LOGIN_REDIRECT_URL = '/'
 LOGIN_URL='login_view'
+#BASE_URL = 'http://192.168.0.111/onlinecoursereg'  'http://192.168.0.111/WebResult.WebApi/api/Student/PythonScore'
+BASE_URL = 'http://192.168.0.111/WebResult.WebApi'

@@ -1,0 +1,29 @@
+{%extends 'base.html'%}
+
+{%block content%}
+<h2>Upload Score sheet</h2>
+{%if messages%}
+{%for message in messages%}
+     <div class="alert {{message.tags}}">
+        <div class="container">
+          <div class="alert-icon">
+            <i class="material-icons">check</i>
+          </div>
+          <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true"><i class="material-icons">clear</i></span>
+          </button>
+           {{message.message}}
+        </div>
+      </div>
+{%endfor%}
+{%endif%}
+<form method='post' enctype='multipart/form-data'>
+{% csrf_token %}
+<table>
+ {{form.as_table}}
+ 
+ </table>
+ <button type="submit" class="btn btn-primary">Upload Scores</button>
+</form>
+
+{% endblock%}

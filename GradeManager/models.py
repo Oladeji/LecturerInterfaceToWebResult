@@ -24,7 +24,7 @@ class AvailableSemester(models.Model):
 
 class UploadedScores(models.Model):
      #courseGuId  = models.UUIDField( default=uuid.uuid4, editable=True)
-     title = models.CharField(default= 'Mydefault titile',max_length=100)
+     title = models.CharField(default= 'Mydefault title',max_length=100)
      upload_date = models.DateTimeField('upload date', default= timezone.now())
      scoresheetfile = models.FileField(upload_to='ScoresFolder/%Y/%m/%d')
 

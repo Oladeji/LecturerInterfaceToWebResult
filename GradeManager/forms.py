@@ -1,4 +1,4 @@
-from .models import Lecturer 
+from .models import UploadedScores 
 from django.contrib.auth import get_user_model ,logout,login
 from django.forms import ModelForm
 from django.contrib.auth import  login, authenticate,logout    
@@ -61,3 +61,11 @@ class UserRegisterForm(forms.ModelForm):
             raise forms.ValidationError('This email already exists')
         return  super(UserRegisterForm,self).clean(*args ,**kwargs)
 
+
+class UploadedScoreForm(forms.ModelForm):
+     #courseGuId  = models.UUIDField( default=uuid.uuid4, editable=True)
+     #upload_date = models.DateTimeField('upload date')
+     #scoresheetfile = models.FileField(label='Select a Result File...')
+     class Meta:
+         model= UploadedScores
+         fields =('title','upload_date','scoresheetfile')
