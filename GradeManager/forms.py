@@ -4,7 +4,6 @@ from django.forms import ModelForm
 from django.contrib.auth import  login, authenticate,logout    
 from django import forms
 
-
 from django.contrib.auth import get_user_model ,logout,login
 #from .models import UploadedScores
 
@@ -24,11 +23,17 @@ class UserLoginForm(forms.Form ):
        if username and password :
            user = authenticate(username=username, password=password)
            if not user :
-               raise forms.ValidationError('This user does not exist')
+               print('This user does not exist 1')
+               raise forms.ValidationError('This user does not exist or Password Incorrect')
+              
            if not user.check_password(password):
+                  print('This user does not exist 2')
                   raise forms.ValidationError('In Correct password')
+                  
            if not user.is_active:
+                  print('This user does not exist 3')
                   raise forms.ValidationError('This user is not active')
+                  
        return  super(UserLoginForm,self).clean(*args ,**kwargs)
 
 

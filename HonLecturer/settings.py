@@ -153,7 +153,7 @@ STATICFILES_DIRS = (
     os.path.join(BASE_DIR, 'static'),
 )
 
-
+AUTHENTICATION_BACKENDS = ['GradeManager.EmailBackend.EmailBackend']
 LOGIN_REDIRECT_URL = '/'
 LOGIN_URL='login_view'
 #BASE_URL = 'http://192.168.0.111/onlinecoursereg'  'http://192.168.0.111/WebResult.WebApi/api/Student/PythonScore'

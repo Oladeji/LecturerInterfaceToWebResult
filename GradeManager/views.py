@@ -23,34 +23,50 @@ def logout_view(request):
 
 
 def login_view(request):
-    next = request.GET.get('next')
-    form = UserLoginForm(request.POST or None) 
-
+  next = request.GET.get('next')
+  if request.method == 'POST':
+    form = UserLoginForm(request.POST) 
     if form.is_valid():
-     
+
        username = form.cleaned_data.get('username')
        password = form.cleaned_data.get('password')
        user = authenticate(username=username,password=password)
        if not user :
-               raise forms.ValidationError('This user does not exist')
+               #raise forms.ValidationError('This user does not exist')
+               print('This user does not exist 4')
+               messages.error(request,"This user does not exist")
+               
        if not user.check_password(password):
-                  raise forms.ValidationError('In Correct password')
+                  #raise forms.ValidationError('In Correct password')
+                  print('This user does not exist 5') 
+                  messages.error(request,"In Correct password")
+                  
        if not user.is_active:
-                  raise forms.ValidationError('This user is not active')
+                  #raise forms.ValidationError('This user is not active')
+                   print('This user does not exist 6')
+                   messages.error(request,"This user is not active")
+                   
        login(request,user)
        if next :
             return redirect(next)
        #return redirect('testing')
        return redirect('landing')
     else:
-        form = UserLoginForm()
+        for error in form.non_field_errors() :
+            messages.error(request,error )  
+            form = UserLoginForm()
+
     context ={'form' : form }
     return render(request,'GradeManager/login_view.html',context)
+
+  context ={'form' : UserLoginForm() }
+  return render(request,'GradeManager/login_view.html',context)
 
 
 def register_view(request):
 
         next = request.GET.get('next')
+        print(next)
     #if request.method == 'POST':
         form = UserRegisterForm(request.POST or None) 
         if form.is_valid():
@@ -249,7 +265,7 @@ def  uploadScoresheet_xls(request):
     context={'form':form}
     return render(request,'GradeManager/uploadScoresheet_xls.html',context)
 
-
+@login_required
 def downloadScoreSheetPdf(request):
 
     print('Beginning file download with requests')

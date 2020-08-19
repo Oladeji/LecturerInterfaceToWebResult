@@ -4,8 +4,25 @@
 {%block content%}
  {% comment %} <div class="page-header header-filter" style="background-image: url('../assets/img/bg7.jpg'); background-size: cover; background-position: top center;"> {% endcomment %}
   <div class="page-header header-filter" style="background-image: url("{%  static 'assets/img/bg7.jpg' %}" ; background-size: cover; background-position: top center;">
- 
+
     <div class="container">
+     <div>
+          {%if messages%}
+              {%for message in messages%}
+                    <div class="alert {{message.level_tag}}">
+                      <div class="container">
+                        <div class="alert-icon">
+                          <i class="material-icons">check</i>
+                        </div>
+                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                          <span aria-hidden="true"><i class="material-icons">clear</i></span>
+                        </button>
+                       <b> {{message.message}}
+                      </div>
+                    </div>
+              {%endfor%}
+              {%endif%}
+          </div> 
       <div class="row">
         <div class="col-lg-4 col-md-6 ml-auto mr-auto">
           <div class="card card-login">
@@ -27,7 +44,7 @@
                     </span>
                   </div>
                    {% comment %} RealUsername :{{form.username}} {% endcomment %}
-                  <input type="text" value ='Oladeji' name ="username"class="form-control" placeholder="User Name...">
+                  <input type="email" value ='Oladeji' name ="username"class="form-control" placeholder="E maill Address...">
                 </div>
                 {% comment %} <div class="input-group">
                   <div class="input-group-prepend">
