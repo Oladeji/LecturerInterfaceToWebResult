@@ -3,6 +3,8 @@
 {% load static%}
 {%block content%}
         <div class="container">
+               <form   class="form" method="POST" action="{% url 'displayCourse_view' %}">  
+                {%csrf_token%} 
         <!--                nav tabs	             -->
         <div id="nav-tabs">
           <div>
@@ -16,7 +18,7 @@
                         <button type="button" class="close" data-dismiss="alert" aria-label="Close">
                           <span aria-hidden="true"><i class="material-icons">clear</i></span>
                         </button>
-                      first <b>{{message.tags}}</b> then{{message.info}}   and {{message.message}}
+                     {{message.message }} for : {{request.user}}
                       </div>
                     </div>
               {%endfor%}
@@ -24,8 +26,8 @@
           </div>
           <div class="row">
               
-            <div class="col-md-4">
-                    <h3><small>Available Courses For {{request.user}}</small></h3>
+            <div class="col-md-4">                  
+              
               {%for crs in courselist%}
               <!-- Tabs with icons on Card -->
               <div class="card card-nav-tabs">
@@ -39,10 +41,12 @@
                 <div class="card-body ">
                   <div class="tab-content text-center">
                     <div class="tab-pane active">
-                      <p class="card-text">  NAME : {{crs.MYCOURSENAME}} </p>
-                      <p class="card-text">  SESSION : {{crs.MYASESSIONID}} , SEMESTER : : {{crs.MYSEMESTERID}}</p>
-                      <a href=" {% url 'displayCourse_view' crs.MYCOURSEGUID%}" class="btn btn-primary btn-round">LOAD COURSE</a>
-
+                     <small> NAME : {{crs.MYCOURSENAME}} </small><hr>
+                      <small> SESSION : {{crs.MYASESSIONID}} , SEMESTER : : {{crs.MYSEMESTERID}}
+                      </small>
+                      {% comment %} <a href=" {% url 'displayCourse_view' crs.MYCOURSEGUID%}" type="submit" class="btn btn-primary btn-round">LOAD COURSE</a> {% endcomment %}
+                      <input type="hidden" name="MYCOURSEGUID" value={{crs.MYCOURSEGUID}} >
+                      <button type="submit" class="btn btn-primary btn-round"> Login </button>
                     </div>
 
                                        </div>
@@ -55,57 +59,75 @@
             <div class="col-md-4">
 </div>
             <div class="col-md-4">
-              <h3><small>Report Constraints</small></h3>
+             
               <!-- Tabs on Plain Card -->
               <div class="card card-nav-tabs">
+        
+                 
                 <div class="card-header card-header-danger">
                   <!-- colors: "header-primary", "header-info", "header-success", "header-warning", "header-danger" -->
                      
-                         Settings
-                    
+                    Report Constraints
+                  
                 </div>
                 <div class="card-body ">
                   <div class="tab-content text-center">
-                    <div class="tab-pane active" 
-                      <p>I think that&#x2019;s a stand culture. I am the nucleus.</p>
+                    <div class="tab-pane active"> 
+                      <div class="form-check">
+                        <label class="form-check-label">
+                          <input class="form-check-input" type="checkbox" name='includescore' >
+                              Include those with Scores
+                          <span class="form-check-sign">
+                            <span class="check"></span>
+                          </span>
+                        </label>
+                      </div>
 
-              <div class="form-check">
-                <label class="form-check-label">
-                  <input class="form-check-input" type="checkbox" value="">
-                  Include those with Scores
-                  <span class="form-check-sign">
-                    <span class="check"></span>
-                  </span>
-                </label>
-              </div>
-
-
-  <form>
-    <div>      
+                    <div class="tab-pane active"> 
+                      <div class="form-check">
+                        <label class="form-check-label">
+                          <input class="form-check-input" type="checkbox" name='orderbymatricno' >
+                              Order with Matric. Number
+                          <span class="form-check-sign">
+                            <span class="check"></span>
+                          </span>
+                        </label>
+                      </div>
+ 
+             <div>      
       <div class="form-group">
        <label for="exampleFormControlSelect1">Year</label>
-         <select class="form-control" id="exampleFormControlSelect1">
-            <option>1</option>
-            <option>2</option>
-            <option>3</option>
-            <option>4</option>
-            <option>5</option>
+         <select class="form-control" id="exampleFormControlSelect1" name='year' >
+            <option>2020</option>
+            <option>2019</option>
+            <option>2018</option>
+            <option>2017</option>
+            <option>2016</option>
+            <option>2021</option>
+             <option>2022</option>
           </select>
       </div>
-      <div class="form-group">
-       <label for="exampleFormControlSelect1">Year</label>
-         <select class="form-control" id="exampleFormControlSelect1">
-            <option>1</option>
-            <option>2</option>
-            <option>3</option>
-            <option>4</option>
-            <option>5</option>
+       <div class="form-group">
+        <label for="exampleFormControlSelect1">Month</label>
+         <select class="form-control" id="exampleFormControlSelect1" name='month' >
+           {% for i in months %}
+            <option>{{i}}</option>
+            {%endfor%}
+
           </select>
-      </div>
+       </div>
+            <div class="form-group">
+            <label for="exampleFormControlSelect1">Day</label>
+            <select class="form-control" id="exampleFormControlSelect1" name='day' > 
+              {% for i in days %}
+               <option>{{i}}</option>
+              {%endfor%}
+            </select>
+            </div>
   </div>
 
 
-</form>
+
 
                     </div>
 
@@ -116,6 +138,7 @@
             </div>
           </div>
         </div>
+        </form>
       </div>
 
 {% endblock%}

@@ -1,49 +1,132 @@
 
-                    <table class="table table-striped table-dark">
-    <thead>
-    <tr>
-      <th scope="col">#</th>
-      <th scope="col">Names</th>
-      <th scope="col">Code</th>
-      <th scope="col">Score</th>
-     </tr>
-      </thead>
+{%extends 'base.html'%}
+{% load static%}
+{%block content%}
+        <div class="container">
+        <!--                nav tabs	             -->
+        <div id="nav-tabs">
+          <div>
+          {%if messages%}
+              {%for message in messages%}
+                    <div class="alert {{message.level_tag}}">
+                      <div class="container">
+                        <div class="alert-icon">
+                          <i class="material-icons">check</i>
+                        </div>
+                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                          <span aria-hidden="true"><i class="material-icons">clear</i></span>
+                        </button>
+                     {{message.message }} for : {{request.user}}
+                      </div>
+                    </div>
+              {%endfor%}
+              {%endif%}
+          </div>
+          <div class="row">
+              
+            <div class="col-md-4">                  
+              
+              {%for crs in courselist%}
+              <!-- Tabs with icons on Card -->
+              <div class="card card-nav-tabs">
+                <div class="card-header card-header-primary"> 
+                
+                <span class="badge badge-pill badge-primary">{{ forloop.counter }}. CODE :{{crs.MYCOURSEID}} , UNIT: {{crs.MYCOURSEUNIT}} </span>
+            
+                  <!-- colors: "header-primary", "header-info", "header-success", "header-warning", "header-danger" -->
 
-        <tbody>
                 </div>
                 <div class="card-body ">
+                  <div class="tab-content text-center">
+                    <div class="tab-pane active">
+                     <small> NAME : {{crs.MYCOURSENAME}} </small><hr>
+                      <small> SESSION : {{crs.MYASESSIONID}} , SEMESTER : : {{crs.MYSEMESTERID}}
+                      </small>
+                      <a href=" {% url 'displayCourse_view' crs.MYCOURSEGUID%}" type="submit" class="btn btn-primary btn-round">LOAD COURSE</a>
 
-                     <h1>MY COURSE LIST</h1>
-                      {%for crs in courselist%}
-                    <tr>
-                    <th scope="row"> {{forloop.counter }}</th>
-                    <td>{{crs.MYSURNAME}} -{{crs.MYMIDDLENAME}} -{{crs.MYFIRSTNAME}} </td>
-                    <td>{{crs.MYCOURSEID}} </td>
-                    <td>
-                    
-                     <div class="form-group has-default">
-                    <input type="text" class="form-control " style = 'width:24px'  maxlength="2" value = {{crs.MYSCORE}}>
-                   </div>
-                    </td>
-                    </tr>
-                    
-                    
-                    
-                     {%endfor%}
-                       </tbody>
-                       </table>
-    
-                        <div>
-                        <a href="/download" class="btn btn-primary btn-round">Download Courses</a>
-                        </div>
-                         <div>
-                        <a href="/download" class="btn btn-primary btn-round">Save Entries</a>
-                        </div>
-                                                 <div>
-                        <a href="/download" class="btn btn-primary btn-round">Upload Scores Sheet</a>
-                        </div>
+                    </div>
+
+                                       </div>
+                </div>
+              </div>              <!-- End Tabs with icons on Card -->
+          <hr>
+        {% endfor %}
+              
+        </div>
+            <div class="col-md-4">
+</div>
+            <div class="col-md-4">
+             
+              <!-- Tabs on Plain Card -->
+              <div class="card card-nav-tabs">
+               <form   class="form" method="POST" action="">   
+                 
+                <div class="card-header card-header-danger">
+                  <!-- colors: "header-primary", "header-info", "header-success", "header-warning", "header-danger" -->
+                     
+                    Report Constraints
+                  
+                </div>
+                <div class="card-body ">
+                  <div class="tab-content text-center">
+                    <div class="tab-pane active" 
+                      <div class="form-check">
+                        <label class="form-check-label">
+                          <input class="form-check-input" type="checkbox" value="" name='includescore' >
+                              Include those with Scores
+                          <span class="form-check-sign">
+                            <span class="check"></span>
+                          </span>
+                        </label>
+                      </div>
+
+
+ 
+    <div>      
+      <div class="form-group">
+       <label for="exampleFormControlSelect1">Year</label>
+         <select class="form-control" id="exampleFormControlSelect1" name='year' >
+            <option>2020</option>
+            <option>2019</option>
+            <option>2018</option>
+            <option>2017</option>
+            <option>2016</option>
+            <option>2021</option>
+             <option>2022</option>
+          </select>
+      </div>
+      <div class="form-group">
+       <label for="exampleFormControlSelect1">Month</label>
+         <select class="form-control" id="exampleFormControlSelect1" name='month' >
+         {% for i in months %}
+            <option>{{i}}</option>
+            {%endfor%}
+
+          </select>
+      </div>
+            <div class="form-group">
+       <label for="exampleFormControlSelect1">Day</label>
+         <select class="form-control" id="exampleFormControlSelect1" name='day' > 
+         {% for i in days %}
+            <option>{{i}}</option>
+            {%endfor%}
+
+          </select>
+      </div>
+  </div>
+
+
+</form>
+
+                    </div>
+
                   </div>
                 </div>
-
-                
               </div>
+              <!-- End Tabs on plain Card -->
+            </div>
+          </div>
+        </div>
+      </div>
+
+{% endblock%}
