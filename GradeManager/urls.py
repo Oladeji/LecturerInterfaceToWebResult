@@ -14,7 +14,7 @@ urlpatterns = [
     path('displayCourseview', views.displayCourse_view, name='displayCourse_view'), 
        #path('displayCourseview/<str:csrid>', views.displayCourse_view, name='displayCourse_view'), 
     path('processdata', views.processdata, name='processdata'), 
-    path('downloadScoresheet_xls/<str:ccode>', views.downloadScoresheet_xls, name='downloadScoresheet_xls'),
+    path('downloadScoresheet_xls', views.downloadScoresheet_xls, name='downloadScoresheet_xls'),
     path('downloadScoreSheetPdf', views.downloadScoreSheetPdf, name='downloadScoreSheetPdf'),
     path('uploadScoresheet_xls', views.uploadScoresheet_xls, name='uploadScoresheet_xls'),
 

@@ -2,18 +2,22 @@ from django.shortcuts import render ,redirect
 from .forms import UserLoginForm ,UserRegisterForm ,UploadedScoreForm
 from django.contrib.auth import  login, authenticate,logout
 from django.contrib.auth.decorators import login_required
+from django.http import HttpResponse ,HttpResponseNotFound 
+from django.conf  import settings
+from django.contrib import messages
+import base64
+from Crypto.Cipher import AES  #install PyCrypto
+from openpyxl.styles import Protection ,Font, Color, Alignment, Border, Side, colors
+import openpyxl
+
+import time  
 import requests
 import json
-from django.http import HttpResponse ,HttpResponseNotFound 
-#from openpyxl import Workbook
-from django.conf  import settings
-import openpyxl
+
 from . DetailResult import DetailResult
 from . generatescorelist import generatescorelist
-from openpyxl.styles import Protection 
 from . basicunit import basicunit ,MergebasicScorelist
-from django.contrib import messages
-from openpyxl.styles import Font, Color, Alignment, Border, Side, colors
+
 
 
 def landing(request):
@@ -150,6 +154,8 @@ def displayCourse_view(request):
             courselist = json.loads(r.text)
             request.session['courselist'] = courselist
             request.session['params'] = params
+            messages.success(request, str (len(courselist))+ " Courses Successfully Loaded")
+            
         except  Exception as inst:
             print("See Error Details Below /n")
             print(inst)
@@ -158,40 +164,83 @@ def displayCourse_view(request):
 
 
 @login_required
-def downloadScoresheet_xls(request,ccode):
-  #if request.method=='POST or None':
+def downloadScoresheet_xls(request):
+  courselist = request.session['courselist']
+  if request.method=='GET':
+    filename= courselist[0]['MYCOURSEID']+courselist[0]['MYASESSIONID'].replace("/", "_") +courselist[0]['MYSEMESTERID']+'.xls'
     response = HttpResponse(content_type='application/ms-excel')
-    response['Content-Disposition'] = 'attachment; filename="Newusers.xls"'
+    response['Content-Disposition'] = "attachment; filename="+filename
+
     if request.session.has_key('courselist'):
-         courselist = request.session['courselist']
+         print('courselist was passed in session')
          workbook = openpyxl.Workbook()
          #worksheet = workbook.create_sheet('Sheet1')
          worksheet=workbook.active
-
          worksheet.protection.sheet = True
          worksheet.protection.enable()
+
+         bold_font = Font(bold=True)
+         big_red_text = Font(bold=True, color="ff0000", size=14)
+         center_aligned_text = Alignment(horizontal="center")
+
+
+
          hashed_password="Akoms1@Poly"
          workbook.security.set_workbook_password(hashed_password, already_hashed=False)
          worksheet.protection.password = 'Deji1@Poly'
-            
-         params = request.session['params']
-         print (params['longerreporttype'])
-    
+         if request.session.has_key('params'):
+            print('params was passed in session')   
+            params = request.session['params']
+            print (params['longerreporttype'])
+         else:
+            print('params was NOT passed in session')  
          worksheet.title='SCORESSHEET'
          col_start=0
          row_start=7
-         worksheet.cell(row=2, column=2).value = 2
+        
          SECRETKEY={
              "CCODE":"Deji1@Poly",
              "TOTAL":str(len(courselist)),
              "EMAIL":request.user.email,
-             "CID":longerreporttype
+             "CID":params['longerreporttype']
          }
-         worksheet.cell(1 ,1).value=json.dumps(SECRETKEY)
-         worksheet.cell(1 ,3).value=7
+         SECRETKEY_STR = json.dumps(SECRETKEY) 
+         Pass='Deji1@Poly'
+         cipher = AES.new(Pass.rjust(32, 'X'),AES.MODE_ECB) # never use ECB in strong systems obviously
+         SECRETKEYciphertext = base64.b64encode(cipher.encrypt(SECRETKEY_STR.rjust(128, 'X')))
+         print(SECRETKEYciphertext)
+         decoded = cipher.decrypt(base64.b64decode(SECRETKEYciphertext))
+         print(decoded)
+
+
+         worksheet.cell(1 ,1).value=SECRETKEYciphertext
+         worksheet.cell(1 ,1).font=Font(color="ffffff", size=2)
+
+           
+         worksheet.column_dimensions['B'].width = 20
+         worksheet.column_dimensions['C'].width = 20
+         worksheet.column_dimensions['D'].width = 20
+         worksheet.column_dimensions['E'].width = 20
+         now = time.strftime("%x")  
+         worksheet.cell(1 ,3).value = now  
+         worksheet.cell(1 ,3).font=Font(color="ffffff", size=2)
          worksheet.cell(3 ,2).value='THE POLYTECHNIC IBADAN'
+         worksheet.merge_cells('B3:E3')
+         worksheet["B3"].font = big_red_text
+         worksheet["B3"].alignment = center_aligned_text
+
          worksheet.cell(4 ,2).value='INTERNAL RESULT DOCUMENT'
-         worksheet.cell(4 ,2).value='COURSE CODE : '+courselist[0]['MYCOURSEID']+' SESSION : '+courselist[0]['MYASESSIONID'] +' SEMESTER : '+MYSEMESTERID[0]['MYCOURSEID'] 
+         worksheet.merge_cells('B4:E4')
+         worksheet["B4"].font = big_red_text
+         worksheet["B4"].alignment = center_aligned_text
+
+         worksheet.cell(5 ,2).value='COURSE CODE : '+courselist[0]['MYCOURSEID']+' SESSION : '+courselist[0]['MYASESSIONID'] +' SEMESTER : '+courselist[0]['MYSEMESTERID'] 
+         worksheet.merge_cells('B5:E5')
+
+         worksheet["B5"].font = big_red_text
+         worksheet["B5"].alignment = center_aligned_text
+
+         
         # worksheet.cell(5 ,2).value='COURSE CODE : '+courselist[0]['MYCOURSEID']
         #  worksheet.range("B3", "E3").merge()
         #  worksheet.range("B4", "E4").merge()
@@ -208,12 +257,16 @@ def downloadScoresheet_xls(request,ccode):
            
 
              worksheet.cell(index+row_start ,col_start+1).value= index+1
+             worksheet.cell(index+row_start ,col_start+1).alignment = center_aligned_text
+             worksheet.cell(index+row_start ,col_start+2).font=bold_font 
              worksheet.cell(index+row_start ,col_start+2).value= row['MYSTUDENTID']
              worksheet.cell(index+row_start ,col_start+3).value= row['MYSURNAME']
              worksheet.cell(index+row_start ,col_start+4).value= row['MYMIDDLENAME']
              worksheet.cell(index+row_start ,col_start+5 ).value = row['MYFIRSTNAME']
             
              worksheet.cell(index+row_start ,col_start+6).value= row['MYSCORE']
+             worksheet.cell(index+row_start ,col_start+6).font=bold_font 
+             worksheet.cell(index+row_start ,col_start+6).alignment = center_aligned_text
              worksheet.cell(index+row_start ,col_start+6).protection = Protection(locked=False)  
              #Scorecell = worksheet['G8']
 
@@ -222,14 +275,19 @@ def downloadScoresheet_xls(request,ccode):
          #cell2.style = Style(protection = Protection(locked=False))
              #cell2.protection = Protection(locked=False)  
 
-
+         worksheet.cell( len(courselist)+row_start  ,1).value='END'
+         worksheet.cell(len(courselist)+row_start  ,1).font = Font(color="ffffff", size=2)
+         worksheet.cell(len(courselist)+row_start  ,1).alignment = center_aligned_text
          workbook.save(response)
+         
     else:
         print('Nothing was passed in session')
 
-    #wb.save("output.xlsx")
-    #wb.save(response)
     return response
+  else :
+   print('This is a get message')
+   return render (request,'GradeManager/displayCourse_view.html',{'courselist':courselist})
+
 
 
 @login_required
