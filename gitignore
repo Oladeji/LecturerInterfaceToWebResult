@@ -9,6 +9,8 @@ manage.py
 .DS_Store
 *.sqlite3
 media/
+uploaddir
+uploaddir/
 *.pyc
 *.db
 *.pid
