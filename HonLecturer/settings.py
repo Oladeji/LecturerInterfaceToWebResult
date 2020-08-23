@@ -158,3 +158,6 @@ LOGIN_REDIRECT_URL = '/'
 LOGIN_URL='login_view'
 #BASE_URL = 'http://192.168.0.111/onlinecoursereg'  'http://192.168.0.111/WebResult.WebApi/api/Student/PythonScore'
 BASE_URL = 'http://192.168.0.111/WebResult.WebApi'
+CIPHER_PASS='Deji1@Poly'
+WORKSHEET_PASS ='Deji1@Poly'
+WORKBOOKHASHED_PASSWORD="Akoms1@Poly"

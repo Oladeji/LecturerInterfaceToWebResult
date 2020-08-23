@@ -14,8 +14,8 @@ import time
 import requests
 import json
 
-from . DetailResult import DetailResult
-from . generatescorelist import generatescorelist
+from . ScoreSheetClass import ScoreSheetClass
+from . generatescorelist import generatescorelist ,validatelist 
 from . basicunit import basicunit ,MergebasicScorelist
 
 
@@ -127,6 +127,7 @@ def processdata(request):
 @login_required
 def displayCourse_view(request):  
     courselist={}
+    theheader={}
     if request.method=='POST':
         print("A Post Message , Details Below")
         includescoretemp = request.POST.get('includescore','False')
@@ -142,8 +143,8 @@ def displayCourse_view(request):
         year = request.POST['year']
         month = request.POST['month']
         day = request.POST['day']
-        reportname='NOTCOLLECTEDYET'
-        step='NOTCOLLECTEDYET'
+        reportname='Score_Sheet_Printing'
+        step='normal'
 
         params = {'includescore':includescore,'longerreporttype':crsid,'orderbymatricno':orderbymatricno,'reportname':reportname,'step':step,'year':year,'month':month,'day':day}
         api=settings.BASE_URL+'/api/Student/PythonPullForscoreEntryUsingCrsGuid'
@@ -152,6 +153,17 @@ def displayCourse_view(request):
             headers = {'content-type': 'application/json'}
             r = requests.post(api,json=params,headers=headers)
             courselist = json.loads(r.text)
+            theheader={
+                    "AsessionId":courselist[0]['MYASESSIONID'],
+                    "SemesterId":courselist[0]['MYSEMESTERID'],
+                    "LevelToDo":courselist[0]['MYLEVELTODO'],
+                    "CourseState":courselist[0]['MYCOURSESTATE'],
+                    "CourseUnit":courselist[0]['MYCOURSEUNIT'],
+                    "CourseNature":courselist[0]['MYCOURSENATURE'],
+                    "AsetId":courselist[0]['MYASETID'],
+                    "CourseId":courselist[0]['MYCOURSEID'],
+
+            }
             request.session['courselist'] = courselist
             request.session['params'] = params
             messages.success(request, str (len(courselist))+ " Courses Successfully Loaded")
@@ -159,137 +171,143 @@ def displayCourse_view(request):
         except  Exception as inst:
             print("See Error Details Below /n")
             print(inst)
+            messages.error(request, "Error Check Connection or Contact Admin")
     return render (request,'GradeManager/displayCourse_view.html',{'courselist':courselist})
 
 
 
 @login_required
 def downloadScoresheet_xls(request):
-  courselist = request.session['courselist']
+  courselist={}
   if request.method=='GET':
-    filename= courselist[0]['MYCOURSEID']+courselist[0]['MYASESSIONID'].replace("/", "_") +courselist[0]['MYSEMESTERID']+'.xls'
-    response = HttpResponse(content_type='application/ms-excel')
-    response['Content-Disposition'] = "attachment; filename="+filename
-
-    if request.session.has_key('courselist'):
-         print('courselist was passed in session')
-         workbook = openpyxl.Workbook()
-         #worksheet = workbook.create_sheet('Sheet1')
-         worksheet=workbook.active
-         worksheet.protection.sheet = True
-         worksheet.protection.enable()
-
-         bold_font = Font(bold=True)
-         big_red_text = Font(bold=True, color="ff0000", size=14)
-         center_aligned_text = Alignment(horizontal="center")
-
-
-
-         hashed_password="Akoms1@Poly"
-         workbook.security.set_workbook_password(hashed_password, already_hashed=False)
-         worksheet.protection.password = 'Deji1@Poly'
-         if request.session.has_key('params'):
-            print('params was passed in session')   
-            params = request.session['params']
-            print (params['longerreporttype'])
-         else:
-            print('params was NOT passed in session')  
-         worksheet.title='SCORESSHEET'
-         col_start=0
-         row_start=7
-        
-         SECRETKEY={
-             "CCODE":"Deji1@Poly",
-             "TOTAL":str(len(courselist)),
-             "EMAIL":request.user.email,
-             "CID":params['longerreporttype']
-         }
-         SECRETKEY_STR = json.dumps(SECRETKEY) 
-         Pass='Deji1@Poly'
-         cipher = AES.new(Pass.rjust(32, 'X'),AES.MODE_ECB) # never use ECB in strong systems obviously
-         SECRETKEYciphertext = base64.b64encode(cipher.encrypt(SECRETKEY_STR.rjust(128, 'X')))
-         print(SECRETKEYciphertext)
-         decoded = cipher.decrypt(base64.b64decode(SECRETKEYciphertext))
-         print(decoded)
-
-
-         worksheet.cell(1 ,1).value=SECRETKEYciphertext
-         worksheet.cell(1 ,1).font=Font(color="ffffff", size=2)
-
+       if request.session.has_key('courselist'):
+                
+                courselist = request.session['courselist']
+                filename= courselist[0]['MYCOURSEID']+courselist[0]['MYASESSIONID'].replace("/", "_") +courselist[0]['MYSEMESTERID']+'.xls'
+                response = HttpResponse(content_type='application/ms-excel')
+                response['Content-Disposition'] = "attachment; filename="+filename
            
-         worksheet.column_dimensions['B'].width = 20
-         worksheet.column_dimensions['C'].width = 20
-         worksheet.column_dimensions['D'].width = 20
-         worksheet.column_dimensions['E'].width = 20
-         now = time.strftime("%x")  
-         worksheet.cell(1 ,3).value = now  
-         worksheet.cell(1 ,3).font=Font(color="ffffff", size=2)
-         worksheet.cell(3 ,2).value='THE POLYTECHNIC IBADAN'
-         worksheet.merge_cells('B3:E3')
-         worksheet["B3"].font = big_red_text
-         worksheet["B3"].alignment = center_aligned_text
+                workbook = openpyxl.Workbook()
+                worksheet=workbook.active
+                worksheet.protection.sheet = True
+                worksheet.protection.enable()
 
-         worksheet.cell(4 ,2).value='INTERNAL RESULT DOCUMENT'
-         worksheet.merge_cells('B4:E4')
-         worksheet["B4"].font = big_red_text
-         worksheet["B4"].alignment = center_aligned_text
+                bold_font = Font(bold=True)
+                big_red_text = Font(bold=True, color="ff0000", size=14)
+                center_aligned_text = Alignment(horizontal="center")
 
-         worksheet.cell(5 ,2).value='COURSE CODE : '+courselist[0]['MYCOURSEID']+' SESSION : '+courselist[0]['MYASESSIONID'] +' SEMESTER : '+courselist[0]['MYSEMESTERID'] 
-         worksheet.merge_cells('B5:E5')
+               
+                workbook.security.set_workbook_password(settings.WORKBOOKHASHED_PASSWORD, already_hashed=False)
+                worksheet.protection.password = settings.CIPHER_PASS
+                if request.session.has_key('params'):
+                    params = request.session['params']
+                else:
+                    print('params was NOT passed in session')  
+                worksheet.title='SCORESSHEET'
+                col_start=0
+                row_start=7
+                
+                SECRETKEY={
+                    "CCODE":settings.CIPHER_PASS,
+                    "TOTAL":str(len(courselist)),
+                    "EMAIL":request.user.email,
+                    "CID":params['longerreporttype'],
+                    "AsessionId":courselist[0]['MYASESSIONID'],
+                    "SemesterId":courselist[0]['MYSEMESTERID'],
+                    "LevelToDo":courselist[0]['MYLEVELTODO'],
+                    "CourseState":courselist[0]['MYCOURSESTATE'],
+                    "CourseUnit":courselist[0]['MYCOURSEUNIT'],
+                    "CourseNature":courselist[0]['MYCOURSENATURE'],
+                    "AsetId":courselist[0]['MYASETID'],
+                    "CourseId":courselist[0]['MYCOURSEID'],
 
-         worksheet["B5"].font = big_red_text
-         worksheet["B5"].alignment = center_aligned_text
+                }
 
-         
-        # worksheet.cell(5 ,2).value='COURSE CODE : '+courselist[0]['MYCOURSEID']
-        #  worksheet.range("B3", "E3").merge()
-        #  worksheet.range("B4", "E4").merge()
-        #  worksheet.range("B5", "E5").merge()
-        #  worksheet.set_col_style(7, Style(fill=Fill(background=Color(255,0,0,0))))
-        #  worksheet.set_cell_style(1, 1, Style(font=Font(bold=True)))
-        #  worksheet.set_cell_style(1, 1, Style(font=Font(italic=True)))
-        #  worksheet.set_cell_style(1, 1, Style(font=Font(underline=True)))
-        #  worksheet.set_cell_style(1, 1, Style(font=Font(strikethrough=True)))
-        #  worksheet.set_cell_style(1, 1, Style(fill=Fill(background=Color(255,0,0,0))))
-        #  worksheet.set_cell_value(1, 2, datetime.now())
-        #  worksheet.set_cell_style(1, 1, Style(format=Format('mm/dd/yy')))
-         for index,row in  enumerate(courselist): 
-           
+                SECRETKEY_STR = json.dumps(SECRETKEY) 
+                SECRETKEY_STR= SECRETKEY_STR.rjust(320, 'X')
+                cipher = AES.new(settings.CIPHER_PASS.rjust(32, 'X'),AES.MODE_ECB) # never use ECB in strong systems obviously
+                SECRETKEYciphertext = base64.b64encode(cipher.encrypt(SECRETKEY_STR))
+                print(SECRETKEYciphertext)
+                decoded = cipher.decrypt(base64.b64decode(SECRETKEYciphertext))
+                worksheet.cell(1 ,1).value=SECRETKEYciphertext
+                worksheet.cell(1 ,1).font=Font(color="ffffff", size=2)
+               
+                worksheet.column_dimensions['B'].width = 20
+                worksheet.column_dimensions['C'].width = 20
+                worksheet.column_dimensions['D'].width = 20
+                worksheet.column_dimensions['E'].width = 20
+                now = time.strftime("%x")  
+                worksheet.cell(1 ,3).value = now  
+                worksheet.cell(1 ,3).font=Font(color="ffffff", size=2)
+                worksheet.cell(3 ,2).value='THE POLYTECHNIC IBADAN'
+                worksheet.merge_cells('B3:E3')
+                worksheet["B3"].font = big_red_text
+                worksheet["B3"].alignment = center_aligned_text
 
-             worksheet.cell(index+row_start ,col_start+1).value= index+1
-             worksheet.cell(index+row_start ,col_start+1).alignment = center_aligned_text
-             worksheet.cell(index+row_start ,col_start+2).font=bold_font 
-             worksheet.cell(index+row_start ,col_start+2).value= row['MYSTUDENTID']
-             worksheet.cell(index+row_start ,col_start+3).value= row['MYSURNAME']
-             worksheet.cell(index+row_start ,col_start+4).value= row['MYMIDDLENAME']
-             worksheet.cell(index+row_start ,col_start+5 ).value = row['MYFIRSTNAME']
-            
-             worksheet.cell(index+row_start ,col_start+6).value= row['MYSCORE']
-             worksheet.cell(index+row_start ,col_start+6).font=bold_font 
-             worksheet.cell(index+row_start ,col_start+6).alignment = center_aligned_text
-             worksheet.cell(index+row_start ,col_start+6).protection = Protection(locked=False)  
-             #Scorecell = worksheet['G8']
+                worksheet.cell(4 ,2).value='INTERNAL RESULT DOCUMENT'
+                worksheet.merge_cells('B4:E4')
+                worksheet["B4"].font = big_red_text
+                worksheet["B4"].alignment = center_aligned_text
 
-             #Scorecell.value = "what about me?"
- 
-         #cell2.style = Style(protection = Protection(locked=False))
-             #cell2.protection = Protection(locked=False)  
+                worksheet.cell(5 ,2).value='COURSE CODE : '+courselist[0]['MYCOURSEID']+' SESSION : '+courselist[0]['MYASESSIONID'] +' SEMESTER : '+courselist[0]['MYSEMESTERID'] 
+                worksheet.merge_cells('B5:E5')
 
-         worksheet.cell( len(courselist)+row_start  ,1).value='END'
-         worksheet.cell(len(courselist)+row_start  ,1).font = Font(color="ffffff", size=2)
-         worksheet.cell(len(courselist)+row_start  ,1).alignment = center_aligned_text
-         workbook.save(response)
-         
-    else:
-        print('Nothing was passed in session')
+                worksheet["B5"].font = big_red_text
+                worksheet["B5"].alignment = center_aligned_text
+                
+                for index,row in  enumerate(courselist):               
+                    worksheet.cell(index+row_start ,col_start+1).value= index+1
+                    worksheet.cell(index+row_start ,col_start+1).alignment = center_aligned_text
+                    worksheet.cell(index+row_start ,col_start+2).font=bold_font 
+                    worksheet.cell(index+row_start ,col_start+2).value= row['MYSTUDENTID']
+                    worksheet.cell(index+row_start ,col_start+3).value= row['MYSURNAME']
+                    worksheet.cell(index+row_start ,col_start+4).value= row['MYMIDDLENAME']
+                    worksheet.cell(index+row_start ,col_start+5 ).value = row['MYFIRSTNAME']
 
-    return response
+                    worksheet.cell(index+row_start ,col_start+8).value= row['MYCOURSEID']
+                    worksheet.cell(index+row_start ,col_start+8).font = Font(color="ffffff", size=2)
+
+                    worksheet.cell(index+row_start ,col_start+9 ).value = row['MYSCORESHEETCLASSID']
+                    worksheet.cell(index+row_start ,col_start+9).font = Font(color="ffffff", size=2)
+
+                    worksheet.cell(index+row_start ,col_start+10).value= row['MYCOURSESTATE']
+                    worksheet.cell(index+row_start ,col_start+10).font = Font(color="ffffff", size=2)
+
+                    worksheet.cell(index+row_start ,col_start+11 ).value = row['MYCOURSENATURE']
+                    worksheet.cell(index+row_start ,col_start+11).font = Font(color="ffffff", size=2)
+                    modi= 'False'
+                    if row['MYMODIFIED']:
+                        modi='True'
+                    
+                    worksheet.cell(index+row_start ,col_start+12 ).value =modi
+                    worksheet.cell(index+row_start ,col_start+12).font = Font(color="ffffff", size=2)
+
+                    worksheet.cell(index+row_start ,col_start+13 ).value =row['MYREADONLY']
+                    worksheet.cell(index+row_start ,col_start+13).font = Font(color="ffffff", size=2)
+
+
+
+
+                    
+
+                    worksheet.cell(index+row_start ,col_start+6).value= row['MYSCORE']
+                    worksheet.cell(index+row_start ,col_start+6).font=bold_font 
+                    worksheet.cell(index+row_start ,col_start+6).alignment = center_aligned_text
+                    worksheet.cell(index+row_start ,col_start+6).protection = Protection(locked=False)  
+              
+                worksheet.cell( len(courselist)+row_start  ,1).value='END'
+                worksheet.cell(len(courselist)+row_start  ,1).font = Font(color="ffffff", size=2)
+                worksheet.cell(len(courselist)+row_start  ,1).alignment = center_aligned_text
+                workbook.save(response)
+                return response
+       else:
+                print('Nothing was passed in session')
   else :
-   print('This is a get message')
-   return render (request,'GradeManager/displayCourse_view.html',{'courselist':courselist})
+        print('This is a POST message')
+        return render (request,'GradeManager/displayCourse_view.html',{'courselist':courselist})
 
 
-
+from django.core.files.storage import FileSystemStorage
 @login_required
 def  uploadScoresheet_xls(request):
     context={}
@@ -299,34 +317,43 @@ def  uploadScoresheet_xls(request):
         if form.is_valid():
             
             excel_file = request.FILES['scoresheetfile']
-            lists = generatescorelist(excel_file)
-            #json_string = json.dumps([ob.__dict__ for ob in lists])
-            json_string = [ob.__dict__ for ob in lists]
+            thename = (request.user.username).replace('@','').replace('/','')
+            fs = FileSystemStorage()
+            print(thename)
+            filename = fs.save(thename+'-'+excel_file.name, excel_file)
+            uploaded_file_url = fs.url(filename)
+
+
+
+            try :
+                lists,basicunits = generatescorelist(excel_file)
+
+
+                
+                err,msg = validatelist(lists)
+                if err == -1 :
+                    messages.error(request, msg)
+                    return render(request,'GradeManager/uploadScoresheet_xls.html',context)
+                #json_string = json.dumps([ob.__dict__ for ob in lists])
+                json_string = [ob.__dict__ for ob in lists]
             
-            print(json_string)
-  
-            myCampId="myCampId"
-            myFacId="myCampId"
-            myDeptId="myCampId"
-            myProgId="myCampId"
-            myProgOptionId="myCampId"
-            myAsetId="myCampId"
-            myAsessionId="myCampId"
-            mySemesterId="myCampId"
-            myLevelTodo="myCampId"
-            myCourseId="myCourseId"
-          
-            basicunits = basicunit( myCampId,myFacId,myDeptId,myProgId,myProgOptionId,myAsetId,myAsessionId,mySemesterId,myLevelTodo,myCourseId)
-            api=settings.BASE_URL+'/api/Student/PythonScore'
-            data = MergebasicScorelist(basicunits.__dict__,json_string)
-            mydata = json.dumps(data.__dict__)
+            
+                api=settings.BASE_URL+'/api/Student/PythonUploadScore'
+                data = MergebasicScorelist(basicunits.__dict__,json_string)
+                mydata = json.dumps(data.__dict__)
+            except  Exception as inst:
+               print(excel_file.name+'  Has Error below ') 
+               print(inst) 
+               messages.error(request, "Problem With the Excel Score File Uploaded")
+            return render(request,'GradeManager/uploadScoresheet_xls.html',context)
+                 
 
         try:
             headers = {'content-type': 'application/json'}
             r = requests.post(api,data=mydata,headers=headers)
             print(r)
             if r.status_code==200:
-                messages.success(request, str(r.status_code) +"  Successfully Uploaded")
+                messages.success(request, "  Successfully Uploaded")
             else:
                 messages.error(request,str(r.status_code) +" Problem loading data")
         except  Exception as inst:
