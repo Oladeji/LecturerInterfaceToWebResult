@@ -3,6 +3,7 @@ from django.contrib.auth import get_user_model ,logout,login
 from django.forms import ModelForm
 from django.contrib.auth import  login, authenticate,logout    
 from django import forms
+from django.conf  import settings
 
 from django.contrib.auth import get_user_model ,logout,login
 #from .models import UploadedScores
@@ -64,6 +65,21 @@ class UserRegisterForm(forms.ModelForm):
         email_qs = User.objects.filter(email=email)
         if email_qs.exists():
             raise forms.ValidationError('This email already exists')
+
+        courselist=""
+        api=settings.BASE_URL+'/api/Camp/PythonGetAvailableCoursesForEmail'
+        try:
+         
+          params={'email':email}
+          r = requests.get(api,params)
+          courselist = json.loads(r.text)
+        except:
+           raise forms.ValidationError('Problem getting Email from Server')            
+        if courselist=="":
+           raise forms.ValidationError('Problem getting Email from Server')    
+        if len(courselist)==0 :
+           raise forms.ValidationError('Lecturer Not Register For Any Course, Contact CIDM/HOD')    
+
         return  super(UserRegisterForm,self).clean(*args ,**kwargs)
 
 

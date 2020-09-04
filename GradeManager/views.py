@@ -17,6 +17,8 @@ import json
 from . ScoreSheetClass import ScoreSheetClass
 from . generatescorelist import generatescorelist ,validatelist 
 from . basicunit import basicunit ,MergebasicScorelist
+from django.core.files.storage import FileSystemStorage
+
 
 
 
@@ -307,7 +309,8 @@ def downloadScoresheet_xls(request):
         return render (request,'GradeManager/displayCourse_view.html',{'courselist':courselist})
 
 
-from django.core.files.storage import FileSystemStorage
+
+
 @login_required
 def  uploadScoresheet_xls(request):
     context={}

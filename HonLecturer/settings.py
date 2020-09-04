@@ -97,7 +97,8 @@ DATABASES = {
          'ENGINE': 'django.db.backends.postgresql',
          'NAME': "HonLecturerDB",
          'USER': 'postgres',
-         'PASSWORD': 'Ranti',
+         #'PASSWORD': 'Ranti',
+         'PASSWORD': 'Kenny1',
          'HOST': '127.0.0.1',
          'PORT': '5432',
  
@@ -157,7 +158,8 @@ AUTHENTICATION_BACKENDS = ['GradeManager.EmailBackend.EmailBackend']
 LOGIN_REDIRECT_URL = '/'
 LOGIN_URL='login_view'
 #BASE_URL = 'http://192.168.0.111/onlinecoursereg'  'http://192.168.0.111/WebResult.WebApi/api/Student/PythonScore'
-BASE_URL = 'http://192.168.0.111/WebResult.WebApi'
+#BASE_URL = 'http://192.168.0.111/WebResult.WebApi'
+BASE_URL = 'http://192.168.8.102/WebResult.WebApi'
 CIPHER_PASS='Deji1@Poly'
 WORKSHEET_PASS ='Deji1@Poly'
 WORKBOOKHASHED_PASSWORD="Akoms1@Poly"
