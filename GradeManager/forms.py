@@ -4,7 +4,8 @@ from django.forms import ModelForm
 from django.contrib.auth import  login, authenticate,logout    
 from django import forms
 from django.conf  import settings
-
+import requests
+import json
 from django.contrib.auth import get_user_model ,logout,login
 #from .models import UploadedScores
 
@@ -72,11 +73,15 @@ class UserRegisterForm(forms.ModelForm):
          
           params={'email':email}
           r = requests.get(api,params)
+          print(courselist)
           courselist = json.loads(r.text)
-        except:
-           raise forms.ValidationError('Problem getting Email from Server')            
+          print(courselist)
+          print(r.text)
+        except Exception as inst:
+           print (inst)
+           raise forms.ValidationError('Problem getting Email from Server - Contact Admin')            
         if courselist=="":
-           raise forms.ValidationError('Problem getting Email from Server')    
+           raise forms.ValidationError('Problem getting Email from Server, '+ email+ ' Not Registerd')    
         if len(courselist)==0 :
            raise forms.ValidationError('Lecturer Not Register For Any Course, Contact CIDM/HOD')    
 

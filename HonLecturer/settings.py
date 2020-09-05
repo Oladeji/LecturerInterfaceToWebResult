@@ -15,21 +15,24 @@ import urllib.parse as up
 import psycopg2
 import os
 from django.contrib.messages import constants as messages
+import json 
+
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve(strict=True).parent.parent
 
-
+with open('/etc/LecturerAppConfig.json') as fh :
+    config =json.load(fh)
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/3.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = '03m64d61xpfh=jp9sdonalpx@*8@g-)z4)ajl3z*(s^_)s_euu'
-
+#SECRET_KEY = '03m64d61xpfh=jp9sdonalpx@*8@g-)z4)ajl3z*(s^_)s_euu'
+SECRET_KEY = config['SECRET_KEY']
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 
 MESSAGE_TAGS = {
@@ -88,20 +91,26 @@ WSGI_APPLICATION = 'HonLecturer.wsgi.application'
 
 
 # Database
-# https://docs.djangoproject.com/en/3.1/ref/settings/#databases
+# https://DB.djangoproject.com/en/3.1/ref/settings/#databases
 
 DATABASES = {
     'default': {
         #'ENGINE': 'django.db.backends.sqlite3',
         #'NAME': BASE_DIR / 'db.sqlite3',
          'ENGINE': 'django.db.backends.postgresql',
-         'NAME': "HonLecturerDB",
-         'USER': 'postgres',
-         #'PASSWORD': 'Ranti',
-         'PASSWORD': 'Kenny1',
-         'HOST': '127.0.0.1',
-         'PORT': '5432',
+         'NAME': config["DBNAME"],
+        #  'USER': 'postgres',
+        #  'PASSWORD': 'Ranti',
+        #  #'PASSWORD': 'Kenny1',
+        #  'HOST': '127.0.0.1',
+        #  'PORT': '5432',
+         'USER': config["DBUSER"],
+         'PASSWORD': config["DBPASSWORD"],
+         #'PASSWORD':config["DBPASSWORD] "],
+         'HOST': config["DBHOST"],
+         'PORT': config["DBPORT"],
  
+
     }
 }
 
@@ -147,19 +156,34 @@ STATIC_URL = '/static/'
 MEDIA_URL = '/mediauploaddir/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'uploaddir')
 
-STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+
+STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 
 # Extra places for collectstatic to find static files.
-STATICFILES_DIRS = (
-    os.path.join(BASE_DIR, 'static'),
-)
+# STATICFILES_DIRS = (
+#     os.path.join(BASE_DIR, 'staticfiles'),
+# )
+# STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+
+# # Extra places for collectstatic to find static files.
+# STATICFILES_DIRS = (
+#     os.path.join(BASE_DIR, 'static'),
+# )
 
 AUTHENTICATION_BACKENDS = ['GradeManager.EmailBackend.EmailBackend']
 LOGIN_REDIRECT_URL = '/'
 LOGIN_URL='login_view'
 #BASE_URL = 'http://192.168.0.111/onlinecoursereg'  'http://192.168.0.111/WebResult.WebApi/api/Student/PythonScore'
 #BASE_URL = 'http://192.168.0.111/WebResult.WebApi'
-BASE_URL = 'http://192.168.8.102/WebResult.WebApi'
-CIPHER_PASS='Deji1@Poly'
-WORKSHEET_PASS ='Deji1@Poly'
-WORKBOOKHASHED_PASSWORD="Akoms1@Poly"
+# BASE_URL = 'http://192.168.8.104/WebResult.WebApi'
+# CIPHER_PASS='Deji1@Poly'
+# WORKSHEET_PASS ='Deji1@Poly'
+# WORKBOOKHASHED_PASSWORD="Akoms1@Poly"
+
+BASE_URL = config["BASE_URL"]
+CIPHER_PASS=config["CIPHER_PASS"]
+WORKSHEET_PASS =config["WORKSHEET_PASS"]
+WORKBOOKHASHED_PASSWORD=config["WORKBOOKHASHED_PASSWORD"]
+
+
+
