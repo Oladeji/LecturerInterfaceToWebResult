@@ -158,10 +158,10 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'uploaddir')
 
 
 STATIC_ROOT = os.path.join(BASE_DIR, 'static')
-
+print(STATIC_ROOT)
 # Extra places for collectstatic to find static files.
 # STATICFILES_DIRS = (
-#     os.path.join(BASE_DIR, 'staticfiles'),
+#     os.path.join(BASE_DIR, 'static'),
 # )
 # STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
