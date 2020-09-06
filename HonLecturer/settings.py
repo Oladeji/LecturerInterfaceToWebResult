@@ -30,7 +30,7 @@ with open('/etc/LecturerAppConfig.json') as fh :
 #SECRET_KEY = '03m64d61xpfh=jp9sdonalpx@*8@g-)z4)ajl3z*(s^_)s_euu'
 SECRET_KEY = config['SECRET_KEY']
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
 ALLOWED_HOSTS = ['*']
 
@@ -99,14 +99,8 @@ DATABASES = {
         #'NAME': BASE_DIR / 'db.sqlite3',
          'ENGINE': 'django.db.backends.postgresql',
          'NAME': config["DBNAME"],
-        #  'USER': 'postgres',
-        #  'PASSWORD': 'Ranti',
-        #  #'PASSWORD': 'Kenny1',
-        #  'HOST': '127.0.0.1',
-        #  'PORT': '5432',
          'USER': config["DBUSER"],
          'PASSWORD': config["DBPASSWORD"],
-         #'PASSWORD':config["DBPASSWORD] "],
          'HOST': config["DBHOST"],
          'PORT': config["DBPORT"],
  
@@ -157,12 +151,13 @@ MEDIA_URL = '/mediauploaddir/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'uploaddir')
 
 
-STATIC_ROOT = os.path.join(BASE_DIR, 'static')
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 print(STATIC_ROOT)
+print(BASE_DIR)
 # Extra places for collectstatic to find static files.
-# STATICFILES_DIRS = (
-#     os.path.join(BASE_DIR, 'static'),
-# )
+STATICFILES_DIRS = (
+    os.path.join(BASE_DIR, 'static'),
+)
 # STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
 # # Extra places for collectstatic to find static files.
@@ -181,6 +176,7 @@ LOGIN_URL='login_view'
 # WORKBOOKHASHED_PASSWORD="Akoms1@Poly"
 
 BASE_URL = config["BASE_URL"]
+
 CIPHER_PASS=config["CIPHER_PASS"]
 WORKSHEET_PASS =config["WORKSHEET_PASS"]
 WORKBOOKHASHED_PASSWORD=config["WORKBOOKHASHED_PASSWORD"]
