@@ -57,7 +57,9 @@ def login_view(request):
        login(request,user)
        if next :
             return redirect(next)
-       #return redirect('testing')
+
+       request.session['serverprogtypeApi'] =request.POST['serverprogtypeApi']
+       print(request.session['serverprogtypeApi']) 
        return redirect('landing')
     else:
         for error in form.non_field_errors() :
@@ -109,7 +111,7 @@ def register_view(request):
 @login_required
 def availableCourses_view(request):
     courselist=""
-    request.session['serverprogtypeApi'] =request.user.serverprogtypeApi
+  
     api=settings.BASE_URL+request.session['serverprogtypeApi']+'/api/Camp/PythonGetAvailableCoursesForEmail'
     print(api)
     try:
