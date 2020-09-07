@@ -387,7 +387,7 @@ def  uploadScoresheet_xls(request):
 def downloadScoreSheetPdf(request):
 
     print('Beginning file download with requests')
-    api=settings.BASE_URL+request.session['serverprogtypeApi']++'/api/Student/PythonPullForScoreSheetPdf'
+    api=settings.BASE_URL+request.session['serverprogtypeApi']+'/api/Student/PythonPullForScoreSheetPdf'
     print(api)
     params = request.session['params']
     headers = {'content-type': 'application/json'}
