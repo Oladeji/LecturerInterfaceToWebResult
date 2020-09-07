@@ -67,23 +67,23 @@ class UserRegisterForm(forms.ModelForm):
         if email_qs.exists():
             raise forms.ValidationError('This email already exists')
 
-        courselist=""
-        api=settings.BASE_URL+'/api/Camp/PythonGetAvailableCoursesForEmail'
-        try:
+        # courselist=""
+        # api=settings.BASE_URL+'/api/Camp/PythonGetAvailableCoursesForEmail'
+        # try:
          
-          params={'email':email}
-          r = requests.get(api,params)
-          print(courselist)
-          courselist = json.loads(r.text)
-          print(courselist)
-          print(r.text)
-        except Exception as inst:
-           print (inst)
-           raise forms.ValidationError('Problem getting Email from Server - Contact Admin')            
-        if courselist=="":
-           raise forms.ValidationError('Problem getting Email from Server, '+ email+ ' Not Registerd')    
-        if len(courselist)==0 :
-           raise forms.ValidationError('Lecturer Not Register For Any Course, Contact CIDM/HOD')    
+        #   params={'email':email}
+        #   r = requests.get(api,params)
+        #   print(courselist)
+        #   courselist = json.loads(r.text)
+        #   print(courselist)
+        #   print(r.text)
+        # except Exception as inst:
+        #    print (inst)
+        #    raise forms.ValidationError('Problem getting Email from Server - Contact Admin')            
+        # if courselist=="":
+        #    raise forms.ValidationError('Problem getting Email from Server, '+ email+ ' Not Registerd')    
+        # if len(courselist)==0 :
+        #    raise forms.ValidationError('Lecturer Not Register For Any Course, Contact CIDM/HOD')    
 
         return  super(UserRegisterForm,self).clean(*args ,**kwargs)
 

@@ -79,12 +79,19 @@ def register_view(request):
         form = UserRegisterForm(request.POST or None) 
         if form.is_valid():
             user = form.save(commit=False)
-            #form.save()
-            username = form.cleaned_data['username']
-            password=form.cleaned_data['password']
-            user.set_password(password)
+            print("userrr1")
             user.save()
+            #form.save()
+            username = form.cleaned_data['email']
+            password=form.cleaned_data['password']
+            user.username = username
+            user.set_password(password)
+            print("userrr2")
+            user.save()
+            print(user)
+
             new_user = authenticate(username=username,password=password)
+            #login(request, user, backend='django.contrib.auth.backends.ModelBackend')
             login(request,new_user)
             if next :
                 return redirect(next)
@@ -102,7 +109,9 @@ def register_view(request):
 @login_required
 def availableCourses_view(request):
     courselist=""
-    api=settings.BASE_URL+'/api/Camp/PythonGetAvailableCoursesForEmail'
+    request.session['serverprogtypeApi'] =request.user.serverprogtypeApi
+    api=settings.BASE_URL+request.session['serverprogtypeApi']+'/api/Camp/PythonGetAvailableCoursesForEmail'
+    print(api)
     try:
          
           params={'email':request.user.email}
@@ -149,8 +158,9 @@ def displayCourse_view(request):
         step='normal'
 
         params = {'includescore':includescore,'longerreporttype':crsid,'orderbymatricno':orderbymatricno,'reportname':reportname,'step':step,'year':year,'month':month,'day':day}
-        api=settings.BASE_URL+'/api/Student/PythonPullForscoreEntryUsingCrsGuid'
-        print(params)
+        api=api=settings.BASE_URL+request.session['serverprogtypeApi']+'/api/Student/PythonPullForscoreEntryUsingCrsGuid'
+       
+        print(api)
         try:
             headers = {'content-type': 'application/json'}
             r = requests.post(api,json=params,headers=headers)
@@ -341,7 +351,8 @@ def  uploadScoresheet_xls(request):
                 json_string = [ob.__dict__ for ob in lists]
             
             
-                api=settings.BASE_URL+'/api/Student/PythonUploadScore'
+                api=settings.BASE_URL+request.session['serverprogtypeApi']+'/api/Student/PythonUploadScore'
+                print(api)
                 data = MergebasicScorelist(basicunits.__dict__,json_string)
                 mydata = json.dumps(data.__dict__)
             except  Exception as inst:
@@ -374,7 +385,8 @@ def  uploadScoresheet_xls(request):
 def downloadScoreSheetPdf(request):
 
     print('Beginning file download with requests')
-    api=settings.BASE_URL+'/api/Student/PythonPullForScoreSheetPdf'
+    api=settings.BASE_URL+request.session['serverprogtypeApi']++'/api/Student/PythonPullForScoreSheetPdf'
+    print(api)
     params = request.session['params']
     headers = {'content-type': 'application/json'}
     r = requests.post(api,json=params,headers=headers)
