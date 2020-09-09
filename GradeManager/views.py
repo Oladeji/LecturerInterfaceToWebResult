@@ -13,7 +13,7 @@ import openpyxl
 import time  
 import requests
 import json
-
+from . AccessRoles import AccessRoles
 from . ScoreSheetClass import ScoreSheetClass
 from . generatescorelist import generatescorelist ,validatelist 
 from . basicunit import basicunit ,MergebasicScorelist
@@ -74,16 +74,31 @@ def login_view(request):
 
 
 def register_view(request):
-
+        print("Calling registerview")
         next = request.GET.get('next')
         print(next)
     #if request.method == 'POST':
         form = UserRegisterForm(request.POST or None) 
         if form.is_valid():
+            print("ub4serrr1")
             user = form.save(commit=False)
             print("userrr1")
+            Role='USER'
+            myCampId=''
+            myFacId=''
+            myDeptId=''
+            myProgId=''
+            myProgOptionId=''
+            myProgType=''
+            myCourseId=''
+            theRoles = AccessRoles(Role,myCampId,myFacId,myDeptId,myProgId,myProgOptionId,myProgType,myCourseId)
+            #theRolesjson = json.dumps(theRoles)
+            print(theRoles)
+            user.last_name='theRolesjson'
+            user.first_name='Please get this'
+            print(user)
             user.save()
-            #form.save()
+            print(user)
             username = form.cleaned_data['email']
             password=form.cleaned_data['password']
             user.username = username
@@ -101,8 +116,10 @@ def register_view(request):
     #else:
     #    form = UserRegisterForm()
         else:
+            print(form.errors)
             for error in form.non_field_errors() :
               messages.error(request,error )  
+              print(error)
              
             context ={'form' : form }
             return render(request,'GradeManager/register_view.html',context)
@@ -320,9 +337,6 @@ def downloadScoresheet_xls(request):
         print('This is a POST message')
         return render (request,'GradeManager/displayCourse_view.html',{'courselist':courselist})
 
-
-
-
 @login_required
 def  uploadScoresheet_xls(request):
     context={}
@@ -352,29 +366,31 @@ def  uploadScoresheet_xls(request):
                 #json_string = json.dumps([ob.__dict__ for ob in lists])
                 json_string = [ob.__dict__ for ob in lists]
             
-            
                 api=settings.BASE_URL+request.session['serverprogtypeApi']+'/api/Student/PythonUploadScore'
                 print(api)
                 data = MergebasicScorelist(basicunits.__dict__,json_string)
                 mydata = json.dumps(data.__dict__)
+            
             except  Exception as inst:
                print(excel_file.name+'  Has Error below ') 
                print(inst) 
                messages.error(request, "Problem With the Excel Score File Uploaded")
-            return render(request,'GradeManager/uploadScoresheet_xls.html',context)
+               return render(request,'GradeManager/uploadScoresheet_xls.html',context)
                  
 
         try:
             headers = {'content-type': 'application/json'}
+            
             r = requests.post(api,data=mydata,headers=headers)
-            print(r)
+            
+            
             if r.status_code==200:
                 messages.success(request, "  Successfully Uploaded")
             else:
                 messages.error(request,str(r.status_code) +" Problem loading data")
         except  Exception as inst:
             print("See Error Details Below /n")
-
+            print(inst)
             messages.error(request,inst)
 
 
