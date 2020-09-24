@@ -40,29 +40,32 @@ class UserLoginForm(forms.Form ):
 
 class UserRegisterForm(forms.ModelForm):
     email = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'placeholder':'Enter Email' ,'class': 'input-line full-width'}))
-    email2 = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'placeholder':'Confirm E mail' ,'class': 'input-line full-width'}))
+    #email2 = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'placeholder':'Confirm E mail' ,'class': 'input-line full-width'}))
     username  = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'placeholder':'Enter Username' ,'class': 'input-line full-width'}))
     password  = forms.CharField(max_length=100, widget=forms.PasswordInput(attrs={'placeholder':'Enter Password' ,'class': 'input-line full-width'}))
-
+    password2  = forms.CharField(max_length=100, widget=forms.PasswordInput(attrs={'placeholder':'Confirm Password' ,'class': 'input-line full-width'}))
+    first_name    = forms.CharField(max_length=1500, widget=forms.PasswordInput(attrs={'placeholder':'Enter Full Names' ,'class': 'input-line full-width'}))
 
     class Meta:
         model = User
         fields=[
             'username',
             'email',
-            'email2',
             'password',
+            'password2',
+            'first_name'
 
         ]
 
 
     def clean(self, *args ,**kwargs):
         email = self.cleaned_data.get('email')
-        email2 = self.cleaned_data.get('email2')
-        if email != email2:
-            print(email)
-            print(email2)
-            raise forms.ValidationError('emails must match')
+        password = self.cleaned_data.get('password')
+        password2 = self.cleaned_data.get('password2')
+        if password != password2:
+            print(password)
+            print(password2)
+            raise forms.ValidationError('password must match')
         email_qs = User.objects.filter(email=email)
         if email_qs.exists():
             raise forms.ValidationError('This email already exists')

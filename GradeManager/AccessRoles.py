@@ -1,11 +1,10 @@
 class AccessRoles:
 
-    def __init__ (self, Role,myCampId,myFacId,myDeptId,myProgId,myProgOptionId,myProgType,myCourseId):
-        
-        self.myCampId = myCampId
-        self.myFacId = myFacId
-        self.myDeptId = myDeptId
-        self.myProgId = myProgId
-        self.myProgOptionId = myProgOptionId
-        self.myProgType = myProgType
-        self.myCourseId = myCourseId
+    def __init__ (self, Role,FacId,DeptId,ProgId,ProgOptionId,ProgType,CourseId):
+        self.Role=Role       
+        self.FacId = FacId
+        self.DeptId = DeptId
+        self.ProgId = ProgId
+        self.ProgOptionId = ProgOptionId
+        self.ProgType = ProgType
+        self.CourseId = CourseId

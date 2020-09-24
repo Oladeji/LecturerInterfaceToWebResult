@@ -14,6 +14,7 @@ import time
 import requests
 import json
 from . AccessRoles import AccessRoles
+from . filterUnAvailableSemesters import filterUnAvailableSemesters
 from . ScoreSheetClass import ScoreSheetClass
 from . generatescorelist import generatescorelist ,validatelist 
 from . basicunit import basicunit ,MergebasicScorelist
@@ -84,18 +85,22 @@ def register_view(request):
             user = form.save(commit=False)
             print("userrr1")
             Role='USER'
-            myCampId=''
-            myFacId=''
-            myDeptId=''
-            myProgId=''
-            myProgOptionId=''
-            myProgType=''
-            myCourseId=''
-            theRoles = AccessRoles(Role,myCampId,myFacId,myDeptId,myProgId,myProgOptionId,myProgType,myCourseId)
-            #theRolesjson = json.dumps(theRoles)
-            print(theRoles)
-            user.last_name='theRolesjson'
-            user.first_name='Please get this'
+            CampId='NONE'
+            FacId='NONE'
+            DeptId='NONE'
+            ProgId='NONE'
+            ProgOptionId='NONE'
+            ProgType='NONE'
+            CourseId='NONE'
+            theRoles = AccessRoles(Role,FacId,DeptId,ProgId,ProgOptionId,ProgType,CourseId)
+            theRolesjson = json.dumps(theRoles.__dict__)
+            if len(theRolesjson)> 150 :
+                raise('Problem Setting Access lenght for Roles')
+            print(theRolesjson)
+            #user.first_name='Please get this'
+            user.last_name=theRolesjson
+            if len(user.first_name)> 150 :
+                  user.first_name=user.first_name[0:150]
             print(user)
             user.save()
             print(user)
@@ -117,12 +122,36 @@ def register_view(request):
     #    form = UserRegisterForm()
         else:
             print(form.errors)
-            for error in form.non_field_errors() :
-              messages.error(request,error )  
-              print(error)
+            print(form.errors.as_json() )
+            messages.error(request,form.errors.as_json() )
+
              
             context ={'form' : form }
             return render(request,'GradeManager/register_view.html',context)
+
+@login_required
+def admin_view(request):
+    courselist=""
+    api=settings.BASE_URL+request.session['serverprogtypeApi']+'/api/Camp/PythonGetAvailableCoursesForEmail'
+    print(api)
+    try:
+         
+          params={'email':request.user.email}       
+          r = requests.get(api,params)
+          courselist = json.loads(r.text)
+          if len(courselist) == 0 :
+              messages.error(request,"No Course(s) available")
+
+          if len(courselist) > 0 :          
+            courselist = filterUnAvailableSemesters(courselist)   
+          messages.success(request, str (len(courselist))+ " Courses Successfully Loaded")
+  
+
+    except  Exception as inst:
+          print(inst)
+          messages.error(request,"Problem Loading Courses , Check Connection")
+               
+    return render(request,'GradeManager/admin_view.html',{'courselist':courselist,'days':range(1, 32),'months':range(1, 13),})
 
 
 @login_required
@@ -133,12 +162,14 @@ def availableCourses_view(request):
     print(api)
     try:
          
-          params={'email':request.user.email}
-          
+          params={'email':request.user.email}       
           r = requests.get(api,params)
           courselist = json.loads(r.text)
+          if len(courselist) > 0 :          
+            courselist = filterUnAvailableSemesters(courselist)   
           messages.success(request, str (len(courselist))+ " Courses Successfully Loaded")
-               
+  
+
     except  Exception as inst:
           print(inst)
           messages.error(request,"Problem Loading Courses , Check Connection")
@@ -183,6 +214,9 @@ def displayCourse_view(request):
         try:
             headers = {'content-type': 'application/json'}
             r = requests.post(api,json=params,headers=headers)
+            if (r.text=='[]'):
+                  messages.error(request, "No Course was downloaded, Check Report Constraints")
+                  return render (request,'GradeManager/displayCourse_view.html',{'courselist':courselist})
             courselist = json.loads(r.text)
             theheader={
                     "AsessionId":courselist[0]['MYASESSIONID'],
@@ -201,6 +235,9 @@ def displayCourse_view(request):
             
         except  Exception as inst:
             print("See Error Details Below /n")
+            print(r.text)
+            print(type(r.text))
+            print(courselist)
             print(inst)
             messages.error(request, "Error Check Connection or Contact Admin")
     return render (request,'GradeManager/displayCourse_view.html',{'courselist':courselist})
