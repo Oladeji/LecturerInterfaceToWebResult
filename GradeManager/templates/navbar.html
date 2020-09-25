@@ -12,6 +12,13 @@
               <div class="collapse navbar-collapse">
                 <ul class="navbar-nav ml-auto">
                  {%if user.is_authenticated%}
+
+                                    <li class="nav-item">
+                    <a href="{% url 'admin_view'%}" class="nav-link">
+                      <i class="material-icons">admin</i>
+                      Admin
+                    </a>
+                  </li>
                   <li class="active nav-item">
                       <a href="{% url 'availableCourses_view'%}" class="nav-link">
                       <i class="material-icons">explore</i>
@@ -40,12 +47,6 @@
                     {%endif%}
                   </li>
 
-                                    <li class="nav-item">
-                    <a href="{% url 'admin_view'%}" class="nav-link">
-                      <i class="material-icons">admin</i>
-                      Admin
-                    </a>
-                  </li>
 
                 </ul>
               </div>
