@@ -156,14 +156,17 @@ def admin_view(request):
 
 @login_required
 def availableCourses_view(request):
+    print("Inside availa")
     courselist=""
-  
+    time.sleep(1)
     api=settings.BASE_URL+request.session['serverprogtypeApi']+'/api/Camp/PythonGetAvailableCoursesForEmail'
     print(api)
     try:
          
           params={'email':request.user.email}       
           r = requests.get(api,params)
+          
+          print(r.text)
           courselist = json.loads(r.text)
           if len(courselist) > 0 :          
             courselist = filterUnAvailableSemesters(courselist)   
