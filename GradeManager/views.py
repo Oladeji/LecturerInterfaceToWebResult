@@ -153,6 +153,52 @@ def admin_view(request):
                
     return render(request,'GradeManager/admin_view.html',{'courselist':courselist,'days':range(1, 32),'months':range(1, 13),})
 
+@login_required
+def reports_view(request):
+
+    print("reports_view")
+    Reports = {'Class_Listing' :  'Class Listing',
+      'Score_Sheet_Printing' :  'Score Sheets',
+      'Running_List' :  'Semester Running List',
+      'Semester_Report' :  'Semester Result',
+      'Standard_Report' :  'Standard Report',
+      'Graduation_Report' :  'Graduation Report',
+      'Graduation_Report_Running' :  'Graduation Report Running List',
+      #'Graduation_Report_Tag' :  'Graduation Report- Place a Tag',
+      #'Graduation_Data_Extract' :  'Graduation Report- Extract Data',
+      #'Graduation_Data_Restore_Extracted' :  'Graduation Data- Restore Extracted Data',
+      #'Transcript_Data_Extract' :  'Transcript_Data- Extract Data',
+      'Course_Registration_Stat' :  'Course Registration Statistics'
+      }
+    courselist=""
+    if request.method == 'POST':
+
+            
+            api=settings.BASE_URL+request.session['serverprogtypeApi']+'/api/Camp/PythonGetAvailableCoursesForEmail'
+            print(api)
+            try:
+                
+                params={'email':request.user.email}       
+                r = requests.get(api,params)
+                courselist = json.loads(r.text)
+                if len(courselist) == 0 :
+                    messages.error(request,"No Course(s) available")
+
+                if len(courselist) > 0 :          
+                    courselist = filterUnAvailableSemesters(courselist)   
+                messages.success(request, str (len(courselist))+ " Courses Successfully Loaded")
+        
+
+            except  Exception as inst:
+                print(inst)
+                messages.error(request,"Problem Loading Courses , Check Connection")
+                    
+    return render(request,'GradeManager/reports_view.html',{'courselist':courselist,'Reports':Reports,})
+
+
+
+
+
 
 @login_required
 def availableCourses_view(request):

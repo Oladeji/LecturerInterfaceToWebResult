@@ -9,6 +9,13 @@ from Crypto.Cipher import AES  #install PyCrypto
 from . ScoreSheetClass import ScoreSheetClass
 from . basicunit import basicunit 
 
+
+def returnreporttypes():
+      
+
+      return Reports
+
+
 def validatelist(Scoreslist):
   err =1
   msg = ""
