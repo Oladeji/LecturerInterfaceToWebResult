@@ -19,6 +19,7 @@ urlpatterns = [
     path('processdata', views.processdata, name='processdata'), 
     path('downloadScoresheet_xls', views.downloadScoresheet_xls, name='downloadScoresheet_xls'),
     path('downloadScoreSheetPdf', views.downloadScoreSheetPdf, name='downloadScoreSheetPdf'),
+    path('downloadPdfReports', views.downloadPdfReports, name='downloadPdfReports'),
     path('uploadScoresheet_xls', views.uploadScoresheet_xls, name='uploadScoresheet_xls'),
 
 ]

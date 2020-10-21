@@ -161,14 +161,14 @@ def reports_view(request):
       'Score_Sheet_Printing' :  'Score Sheets',
       'Running_List' :  'Semester Running List',
       'Semester_Report' :  'Semester Result',
-      'Standard_Report' :  'Standard Report',
-      'Graduation_Report' :  'Graduation Report',
-      'Graduation_Report_Running' :  'Graduation Report Running List',
+      #'Standard_Report' :  'Standard Report',
+      #'Graduation_Report' :  'Graduation Report',
+      #'Graduation_Report_Running' :  'Graduation Report Running List',
       #'Graduation_Report_Tag' :  'Graduation Report- Place a Tag',
       #'Graduation_Data_Extract' :  'Graduation Report- Extract Data',
       #'Graduation_Data_Restore_Extracted' :  'Graduation Data- Restore Extracted Data',
       #'Transcript_Data_Extract' :  'Transcript_Data- Extract Data',
-      'Course_Registration_Stat' :  'Course Registration Statistics'
+      #'Course_Registration_Stat' :  'Course Registration Statistics'
       }
     courselist=""
     if request.method == 'POST':
@@ -484,6 +484,37 @@ def  uploadScoresheet_xls(request):
         form = UploadedScoreForm()
     context={'form':form}
     return render(request,'GradeManager/uploadScoresheet_xls.html',context)
+
+
+
+
+@login_required
+def downloadPdfReports(request):
+
+    print('Beginning file downloadPdfReports with requests')
+    api=settings.BASE_URL+request.session['serverprogtypeApi']+'/api/Student/PythonPullForPdfReports'
+    print(api)
+
+    deptcode= request.POST['deptcode']
+    sessioncode= request.POST['sessioncode']
+    semestercode= request.POST['semestercode']
+    progtypecode= request.POST['progtypecode']
+    progcode= request.POST['progcode']
+    setcode= request.POST['setcode']
+    reportname= request.POST['reportname']
+    myLevelTodo= request.POST['myLevelTodo']
+    #progcode= request.POST['progcode']
+    # params = {'includescore':includescore,'longerreporttype':crsid,'orderbymatricno':orderbymatricno,'reportname':reportname,'step':step,'year':year,'month':month,'day':day}
+    params = { 'myLevelTodo':myLevelTodo, 'reportname':reportname,'longerreporttype':'TRUE','mycampId':'IBA','myProgId':progcode,'myProgOptionId':deptcode,'myAsetId':setcode,'myAsessionId':sessioncode,'mySemesterId':semestercode,'progtypeId':progtypecode}
+  
+    filename=(reportname+myLevelTodo+progcode+deptcode+setcode+sessioncode+semestercode+progtypecode).replace("/", "_")
+    print(filename)
+    headers = {'content-type': 'application/json'}
+    
+    r = requests.post(api,json=params,headers=headers)
+    response = HttpResponse(r.content,content_type='application/pdf')
+    response['Content-Disposition'] = 'attachment; filename='+filename+".pdf"
+    return response
 
 @login_required
 def downloadScoreSheetPdf(request):

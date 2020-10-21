@@ -3,7 +3,7 @@
 {% load static%}
 {%block content%}
         <div class="container">
-               <form   class="form" method="POST" action="{% url 'reports_view' %}">  
+               <form   class="form" method="POST" action="{% url 'downloadPdfReports' %}">  
                 {%csrf_token%} 
         <!--                nav tabs	             -->
         <div id="nav-tabs">
@@ -43,7 +43,7 @@
              {%for crs,ss in Reports.items%} 
                     <div class="form-check">
                                 <label class="form-check-label">
-                                <input class="form-check-input" type="radio" name="exampleRadios" id="exampleRadios1" value="option1">
+                                <input class="form-check-input" type="radio" name="reportname" id="reportname" value={{crs}}>
                                     {{crs}}  {{ss}}
                                     <span class="circle">
                                         <span class="check"></span>
@@ -51,15 +51,7 @@
                                 </label>
                     </div>
            {% endfor %} 
-              <div class="form-check">
-                            <label class="form-check-label">
-                            <input class="form-check-input" type="radio" name="exampleRadios" id="exampleRadios2" value="option2" checked>
-                                            Radio is on
-                                            <span class="circle">
-                                                <span class="check"></span>
-                                            </span>
-                            </label>
-              </div>
+
 
       {% comment %} <input type="hidden" name="MYCOURSEGUID" value={{crs.MYCOURSEGUID}} > {% endcomment %}
                       <button type="submit" class="btn btn-primary btn-round"> Load  Report </button>
@@ -112,35 +104,44 @@
                       </div>
  
              <div>      
-      <div class="form-group">
-       <label for="exampleFormControlSelect1">Year</label>
-         <select class="form-control" id="exampleFormControlSelect1" name='year' >
-            <option>2020</option>
-            <option>2019</option>
-            <option>2018</option>
-            <option>2017</option>
-            <option>2016</option>
-            <option>2021</option>
-             <option>2022</option>
-          </select>
-      </div>
-       <div class="form-group">
-        <label for="exampleFormControlSelect1">Month</label>
-         <select class="form-control" id="exampleFormControlSelect1" name='month' >
-           {% for i in months %}
-            <option>{{i}}</option>
-            {%endfor%}
+              <div class="form-group">
+                <label for="exampleInput1" class="bmd-label-floating">Department Code</label>
+                <input type="text" class="form-control" name="deptcode"   id="deptcode">
+                <span class="bmd-help">e.g department option Code EEE</span>
+              </div>
+               <div class="form-group">
+                <label for="exampleInput1" class="bmd-label-floating">Set</label>
+                <input type="text" class="form-control" name="setcode" id="setcode">
+                <span class="bmd-help">e.g Year of entry 2000</span>
+              </div>
+              <div class="form-group">
+                <label for="exampleInput1" class="bmd-label-floating">Session</label>
+                <input type="text" class="form-control" name="sessioncode" id="sessioncode">
+                <span class="bmd-help">e.g 2019/2020</span>
+              </div>
+                     <div class="form-group">
+                <label for="exampleInput1" class="bmd-label-floating">Semester</label>
+                <input type="text" class="form-control" name="semestercode" id="semestercode">
+                <span class="bmd-help">e.g 1</span>
+              </div>   
+                 <div class="form-group">
+                <label for="exampleInput1" class="bmd-label-floating">Programme</label>
+                <input type="text" class="form-control" name="progcode" id="progcode">
+                <span class="bmd-help">e.g HND </span>
+              </div>   
 
-          </select>
-       </div>
-            <div class="form-group">
-            <label for="exampleFormControlSelect1">Day</label>
-            <select class="form-control" id="exampleFormControlSelect1" name='day' > 
-              {% for i in days %}
-               <option>{{i}}</option>
-              {%endfor%}
-            </select>
-            </div>
+                 <div class="form-group">
+                <label for="exampleInput1" class="bmd-label-floating">Programme Type</label>
+                <input type="text" class="form-control" name="progtypecode" id="progtypecode">
+                <span class="bmd-help">either FULL or DPP or PART </span>
+              </div>
+                 <div class="form-group">
+                <label for="exampleInput1" class="bmd-label-floating">Current Level</label>
+                <input type="text" class="form-control" name="myLevelTodo" id="myLevelTodo">
+                <span class="bmd-help">100 /200 /300/400 (Optional) </span>
+              </div>
+
+                
   </div>
 
 
