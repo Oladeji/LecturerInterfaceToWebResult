@@ -34,7 +34,7 @@ def logout_view(request):
 def login_view(request):
   next = request.GET.get('next')
   if request.method == 'POST':
-    form = UserLoginForm(request.POST) 
+    form = UserLoginForm(request.POST or None) 
     if form.is_valid():
 
        username = form.cleaned_data.get('username')
@@ -211,17 +211,31 @@ def availableCourses_view(request):
          
           params={'email':request.user.email}       
           r = requests.get(api,params)
-          
+          r.raise_for_status()
           print(r.text)
           courselist = json.loads(r.text)
           if len(courselist) > 0 :          
             courselist = filterUnAvailableSemesters(courselist)   
           messages.success(request, str (len(courselist))+ " Courses Successfully Loaded")
-  
 
+    except requests.exceptions.HTTPError as errh:
+         messages.error (request,"Problem Loading Courses :=> "+errh.response.text)
+    except requests.exceptions.ConnectionError as errc:
+         messages.error (request,"Problem Loading Courses :=> "+errc)
+
+    except requests.exceptions.Timeout as timeout:
+    # Maybe set up for a retry, or continue in a retry loop
+          messages.error(request,"Problem Loading Courses :=> "+ timeout)
+    
+    except requests.exceptions.TooManyRedirects as manyredirect:
+    # Tell the user their URL was bad and try a different one
+          messages.error(request,"Problem Loading Courses :=> "+ manyredirect)
+    except requests.exceptions.RequestException as requestexception:
+    # catastrophic error. bail.
+          messages.error(request,"Problem Loading Courses :=> "+ manyredirect)
     except  Exception as inst:
           print(inst)
-          messages.error(request,"Problem Loading Courses , Check Connection")
+          messages.error(request,"Problem Loading Courses :=> "+ inst)
                
     return render(request,'GradeManager/availableCourses_view.html',{'courselist':courselist,'days':range(1, 32),'months':range(1, 13),})
 
